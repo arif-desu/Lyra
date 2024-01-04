@@ -146,7 +146,7 @@ $(BUILD_DIR):
 #######################################
 # Phony targets
 #######################################
-.PHONY:	clean
+.PHONY:	clean flash
 
 #######################################
 # clean up
@@ -154,6 +154,12 @@ $(BUILD_DIR):
 clean:
 	@echo Cleaning up build artifacts...
 	@-rm -rf $(BUILD_DIR)
+
+#######################################
+# clean up
+#######################################
+flash:
+	$(VEGA_SDK_PATH)/tools/aries-flasher /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
 
 #######################################
 # dependencies
