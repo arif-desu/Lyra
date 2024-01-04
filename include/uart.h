@@ -27,16 +27,18 @@ typedef struct {
 
 
 
-void UART_Init(UART_Reg_Type *UARTx, uint32_t baud, const UART_Frame_t *frame);
+void UART_Init(UART_Reg_t *UARTx, uint32_t baud, const UART_Frame_t *frame);
 
-void UART_Init_IT(UART_Reg_Type *UARTx, uint32_t baud, const UART_Frame_t *frame, uint8_t int_flags);
+void UART_Init_IT(UART_Reg_t *UARTx, uint32_t baud, const UART_Frame_t *frame, uint8_t int_flags);
 
-void UART_Transmit(UART_Reg_Type *UARTx, const char *buffer, unsigned int len);
+void UART_TxChar(UART_Reg_t *UARTx, const char data);
 
-void UART_Transmit_IT(UART_Reg_Type *UARTx, const char *buffer);
+void UART_Transmit(UART_Reg_t *UARTx, const char *buffer, uint32_t len);
 
-void UART_Receive(UART_Reg_Type *UARTx, char *buffer);
+void UART_Transmit_IT(UART_Reg_t *UARTx, const char *buffer);
 
-void UART_Receive_IT(UART_Reg_Type *UARTx, char *buffer);
+void UART_Receive(UART_Reg_t *UARTx, char *buffer);
+
+void UART_Receive_IT(UART_Reg_t *UARTx, char *buffer);
 
 #endif /*__UART_H*/

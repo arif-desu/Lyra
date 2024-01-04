@@ -30,7 +30,7 @@ void UART_Init(UART_Reg_t *UARTx, uint32_t baud, const UART_Frame_t *frame)
 	UARTx->LCR = 0x00000000UL;
 
 	if (NULL == frame) {
-		UARTx->LCR = (UART_LCR_WL8 | UART_LCR_PE_NONE | UART_LCR_STOP1);
+		UARTx->LCR = (UART_LCR_WL8 | UART_LCR_PE_NONE | UART_LCR_STOP_1);
 	}
 	else {
 		switch (frame->WordLength) {
@@ -70,10 +70,10 @@ void UART_Init(UART_Reg_t *UARTx, uint32_t baud, const UART_Frame_t *frame)
 
 		switch (frame->StopBits) {
 			case 1:
-				UARTx->LCR |= UART_LCR_STOP1;
+				UARTx->LCR |= UART_LCR_STOP_1;
 				break;
 			case 2:
-				UARTx->LCR |= UART_LCR_STOP2;
+				UARTx->LCR |= UART_LCR_STOP_2;
 				break;
 			default:
 				break;
@@ -83,18 +83,18 @@ void UART_Init(UART_Reg_t *UARTx, uint32_t baud, const UART_Frame_t *frame)
 	/* Enable Latch Access and load MSB and LSB into divisor latch register to set baud rate*/
 	uint32_t divisor = (uint32_t) (UARTCLK / (baud * 16));
 
-	UARTx->LCR |= 0x1U << UART_LCR_DLAB;
+	UARTx->LCR |= UART_LCR_DLAB;
 	UARTx->DLL = divisor & 0xFFFFUL;
 	UARTx->DLM = (divisor >> 8) & 0xFFFFUL;
 
 	/* Disable Divisor Latch access */
-	UARTx->LCR &= ~(0x1U << UART_LCR_DLAB);
+	UARTx->LCR &= ~(UART_LCR_DLAB);
 
 	/* Disable all UART interrupts */
 	UARTx->IER = 0x00UL;
 }
 
-void UART_TxChar(UART_Reg_Type *UARTx, const char data)
+void UART_TxChar(UART_Reg_t *UARTx, const char data)
 {
 	if (NULL == UARTx) {
 		return;
@@ -109,16 +109,12 @@ void UART_TxChar(UART_Reg_Type *UARTx, const char data)
 }
 
 
-void UART_Transmit(UART_Reg_Type *UARTx, const char *buffer, uint32_t len)
+void UART_Transmit(UART_Reg_t *UARTx, const char *buffer, uint32_t len)
 {
 	if (NULL == UARTx || NULL == buffer || 0 == len) {
 		return;
 	}
 
-	/* Wait till Transmit FIFOs are empty from any previous transactions */
-	//while (! (UARTx->LSR & (UART_LSR_TXE_Msk | UART_LSR_TEMPT_Msk)));
-
-	/* Transmit data till data stream gets empty or lenght is reached */
 	while (*buffer && len) {
 		UART_TxChar(UARTx, *buffer++);
 	}

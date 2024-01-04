@@ -89,22 +89,7 @@ void GPIO_TogglePin(uint8_t GPIOx, const uint8_t Pin)
 //TODO
 int GPIO_ReadPin(uint8_t GPIOx, const uint8_t Pin) 
 {
-    if (0 != GPIOx && Pin >= 0 && Pin <= 15) {
-        unsigned long PADDR = (1 << Pin) << 2;
-        __IO unsigned long *GPIO_DATA_R;
-
-        if (0 == GPIOx) {
-            GPIO_DATA_R = (unsigned long *) (GPIO_PORTA | PADDR) ;
-           
-        }
-        else if (1 == GPIOx) {
-            GPIO_DATA_R = (unsigned long *) (GPIO_PORTB | PADDR) ;
-        }
-        return 0;       //temporary to bypass compiler warning
-    }
-    else {
-        return -1;
-    }
+    return -1;
 }
 
 

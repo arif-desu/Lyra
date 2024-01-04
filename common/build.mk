@@ -1,15 +1,21 @@
 ######################################
 # target
 ######################################
-TARGET ?= app
+ifndef TARGET
+TARGET = app
+endif
 
 ######################################
 # building variables
 ######################################
 # debug build?
-DEBUG ?= 0
+ifndef DEBUG
+DEBUG = 0
+endif
 # optimization
-OPT = -Og
+ifndef OPT
+OPT = -O0
+endif
 
 #######################################
 # paths
@@ -21,9 +27,7 @@ BUILD_DIR = build
 # source
 ######################################
 # C sources
-C_SOURCES +=  \
-$(wildcard $(VEGA_SDK_PATH)/drivers/*.c) \
-
+C_SOURCES += 
 
 # ASM sources
 ASM_SOURCES +=  \
@@ -66,13 +70,13 @@ MCU = $(CODEMODEL) $(ARCH) $(ABI)
 
 # macros for gcc
 # AS defines
-AS_DEFS = 
+AS_DEFS += 
 
 # C defines
-C_DEFS =  
+C_DEFS +=  
 
 # AS includes
-AS_INCLUDES = 
+AS_INCLUDES += 
 
 # C includes
 C_INCLUDES += \
@@ -97,11 +101,13 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
+ifndef LDSCRIPT
 LDSCRIPT = $(VEGA_SDK_PATH)/thejas32mem.ld
+endif
 
 # libraries
-LIBS = -lc -lm -lnosys 
-LIBDIR = 
+LIBS += -lc -lm -lnosys 
+LIBDIR += 
 LDFLAGS = $(MCU) -specs=nano.specs -nostartfiles -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all

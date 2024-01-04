@@ -106,13 +106,13 @@ typedef struct {
 	__IO uint32_t LSR;							/* UART Line Status Register */	
 	__IO uint32_t MSR;							/* UART Modem Status Register */
 	__IO uint32_t SCRATCH;						/* UART Scratch Register */
-} UART_Reg_Type;
+} UART_Reg_t;
 
 
 
-#define UART0 							((UART_Reg_Type *)(UART_BASE + 0x0000UL))    /* 0x1000 0100 */
-#define UART1 							((UART_Reg_Type *)(UART_BASE + 0x0100UL))    /* 0x1000 0200 */
-#define UART2 							((UART_Reg_Type *)(UART_BASE + 0x0200UL))    /* 0x1000 0300 */
+#define UART0 							((UART_Reg_t *)(UART_BASE + 0x0000UL))    /* 0x1000 0100 */
+#define UART1 							((UART_Reg_t *)(UART_BASE + 0x0100UL))    /* 0x1000 0200 */
+#define UART2 							((UART_Reg_t *)(UART_BASE + 0x0200UL))    /* 0x1000 0300 */
 
 /* UART Interrupt Enable Register (IER) bits */
 
