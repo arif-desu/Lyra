@@ -159,7 +159,7 @@ clean:
 # clean up
 #######################################
 flash:
-	$(VEGA_SDK_PATH)/tools/aries-flasher /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
+	$(VEGA_SDK_PATH)/aries-flasher /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
 
 #######################################
 # dependencies

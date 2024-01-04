@@ -59,6 +59,7 @@ mkdir -p "$SDK_PATH"
 
 cp common/* "$SDK_PATH"
 cp -r "$SETUP_PATH"/drivers "$SDK_PATH"
+cp  "$SETUP_PATH"/tools/aries-flasher "$SDK_PATH"
 
 case "$DEFAULT_SHELL" in
   "bash")
