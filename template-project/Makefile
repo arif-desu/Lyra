@@ -20,12 +20,5 @@ AS_INCLUDES =
 LIBS = 
 LIBDIR =
 
-# Optional parameters
-#  DEBUG = 1 => include debug symbols in executable
-DEBUG = 0
-
-# OPT - Optimization ,default -O0 
-# Read https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
-OPT = -Og
 
 include $(VEGA_SDK_PATH)/build.mk

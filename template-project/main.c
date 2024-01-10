@@ -1,30 +1,68 @@
 #include <vega/gpio.h>
 #include <vega/thejas32.h>
 
+#define RED             8
+#define GREEN           6
+#define BLUE            7
+
+#define RED_SET         GPIO_ResetPin(GPIOB, RED)
+#define RED_RST         GPIO_SetPin(GPIOB,RED)
+
+#define GREEN_SET       GPIO_ResetPin(GPIOB, GREEN)
+#define GREEN_RST       GPIO_SetPin(GPIOB, GREEN)
+
+#define BLUE_SET        GPIO_ResetPin(GPIOB, BLUE)
+#define BLUE_RST        GPIO_SetPin(GPIOB, BLUE)
+
 int main()
 {
-    GPIO_Init(GPIOB, 8, GPIO_OUT);
-    GPIO_Init(GPIOB, 7, GPIO_OUT);
-    GPIO_Init(GPIOB, 6, GPIO_OUT);
+
+   /* 
+    GPIO_Init(GPIOB, 8, OUT);
+    GPIO_Init(GPIOB, 7, OUT);
+    GPIO_Init(GPIOB, 6, OUT);
+
+
 
     while (1) {
-        GPIO_ResetPin(GPIOB, 8);
-        for (int i=0; i < 0x800000; i++);
         GPIO_SetPin(GPIOB, 8);
         for (int i=0; i < 0x800000; i++);
-        
-        GPIO_ResetPin(GPIOB, 7);
+        GPIO_ResetPin(GPIOB, 8);
         for (int i=0; i < 0x800000; i++);
+        
         GPIO_SetPin(GPIOB, 7);
         for (int i=0; i < 0x800000; i++);
-
-
-        GPIO_ResetPin(GPIOB, 6);
+        GPIO_ResetPin(GPIOB, 7);
         for (int i=0; i < 0x800000; i++);
+
+
         GPIO_SetPin(GPIOB, 6);
+        for (int i=0; i < 0x800000; i++);
+        GPIO_ResetPin(GPIOB, 6);
         for (int i=0; i < 0x800000; i++);
         
     }
+    */
 
+    for (int i = 0; i < 9; i++) {
+        GPIO_Init(GPIOB, i, OUT);
+        GPIO_SetPin(GPIOB, i);
+    }
+
+    GPIO_Init(GPIOB, 12, IN);
+    
+    while (1) {
+        if (GPIO_ReadPin(GPIOB, 12) == 0) {
+            RED_RST;
+            GREEN_SET;
+        }
+        else {
+            GREEN_RST;
+            RED_SET;
+        }
+    
+    }
+
+    
     return 0;
 }
