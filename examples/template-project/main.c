@@ -17,7 +17,7 @@
 int main()
 {
 
-   /* 
+   
     GPIO_Init(GPIOB, 8, OUT);
     GPIO_Init(GPIOB, 7, OUT);
     GPIO_Init(GPIOB, 6, OUT);
@@ -42,27 +42,7 @@ int main()
         for (int i=0; i < 0x800000; i++);
         
     }
-    */
-
-    for (int i = 0; i < 9; i++) {
-        GPIO_Init(GPIOB, i, OUT);
-        GPIO_SetPin(GPIOB, i);
-    }
-
-    GPIO_Init(GPIOB, 12, IN);
     
-    while (1) {
-        if (GPIO_ReadPin(GPIOB, 12) == 0) {
-            RED_RST;
-            GREEN_SET;
-        }
-        else {
-            GREEN_RST;
-            RED_SET;
-        }
-    
-    }
 
     
-    return 0;
 }
