@@ -14,7 +14,7 @@ DEBUG = 0
 endif
 # optimization
 ifndef OPT
-OPT = -O0
+OPT = -Og
 endif
 
 #######################################
@@ -159,7 +159,7 @@ clean:
 # clean up
 #######################################
 flash:
-	$(VEGA_SDK_PATH)/aries-flasher /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
+	sudo $(VEGA_SDK_PATH)/aries-flasher /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
 
 #######################################
 # dependencies

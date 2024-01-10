@@ -13,8 +13,8 @@
 
 /* 
 Initialises UART controller in blocking mode 
-@param UARTx - UART instance
-@param Baud  - Baud Rate in bits per second
+@param UARTx - UART controller
+@param Baud  - Baud Rate 
 @param Frame - Frame format <WordLength><Parity><StopBits>
 
 Default - If Frame is passed as NULL, defaults to 8N1

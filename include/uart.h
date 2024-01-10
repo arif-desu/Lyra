@@ -20,14 +20,25 @@ typedef enum {
 } UART_ReturnStatus;
 
 typedef struct {
-	uint8_t WordLength;
-	uint8_t Parity;
-	uint8_t StopBits;
+	uint16_t WordLength;
+	char Parity;
+	uint16_t StopBits;
 } UART_Frame_t;
 
 
+/* 
+Initialises UART controller in blocking mode 
+@param UARTx - UART controller
+@param Baud  - Baud Rate 
+@param Frame - Frame format <WordLength><Parity><StopBits>
+
+Default - If Frame is passed as NULL, defaults to 8N1
+@return : void
+*/
 
 void UART_Init(UART_Reg_t *UARTx, uint32_t baud, const UART_Frame_t *frame);
+
+
 
 void UART_Init_IT(UART_Reg_t *UARTx, uint32_t baud, const UART_Frame_t *frame, uint8_t int_flags);
 

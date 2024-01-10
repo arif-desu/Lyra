@@ -27,7 +27,6 @@
 #define I2C_BASE                        (0x10000800UL)
 #define TIMER_BASE                      (0x10000A00UL)
 #define ADC_BASE                        (0x10001000UL)                   
-#define GPIO_BASE                       (0x10080000UL)
 #define PWM_BASE                        (0x10400000UL)
 #define PLIC_BASE                       (0x20010000UL)
 
@@ -41,20 +40,14 @@
 
 #define GPIOA 						(0U)
 #define GPIOB						(1U)
-#define GPIO0						(GPIOA)
-#define GPIO1						(GPIOB)	
+
+#define GPIOA_DATA                  (0x10080000UL)   
+#define GPIOB_DATA                  (0x10180000UL)  
+
+#define GPIOA_DIR					((__IO uint32_t *)(0x100C0000UL))
+#define GPIOB_DIR					((__IO uint32_t *)(0x101C0000UL))
 
 
-#define GPIO_DIR_OFFSET				(0x00040000UL)
-
-#define GPIO_PORTA                  (0x10080000UL)   
-#define GPIO_PORTB                  (0x10180000UL)  
-
-#define GPIOA_DIRREG				((__IO uint32_t *)(GPIO_PORTA + GPIO_DIR_OFFSET))
-#define GPIOB_DIRREG				((__IO uint32_t *)(GPIO_PORTB + GPIO_DIR_OFFSET))
-
-#define GPIOA_DIR					(*GPIOA_DIRREG)
-#define GPIOB_DIR					(*GPIOB_DIRREG)
 
 
 /*------------------------------------------------------------------------------*/
