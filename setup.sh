@@ -3,13 +3,13 @@
 # THEJAS32 SDK setup script
 # Author - Arif B <arif.dev@pm.me>
 
-NORMAL=$(tput sgr0)
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
 BLUE=$(tput setaf 4)
 MAGENTA=$(tput setaf 5)
 CYAN=$(tput setaf 6)
+NORMAL=$(tput sgr0)
 
 set -e
 
@@ -25,7 +25,7 @@ MINICOM_CONFIG=/etc/minirc.aries
 # Check if running as root
 if [[ "$EUID" != 0 ]]
 then 
-    echo "${MAGENTA}Please run the script with root privileges!${NORMAL}"
+    echo "${MAGENTA}Please run the script with administrator privileges!${NORMAL}"
     echo "Try sudo $0"
     exit
 fi
