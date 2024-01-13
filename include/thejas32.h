@@ -38,9 +38,6 @@
 * @brief GPIO Registers
 */
 
-#define GPIOA 						(0U)
-#define GPIOB						(1U)
-
 #define GPIOA_DATA                  (0x10080000UL)   
 #define GPIOB_DATA                  (0x10180000UL)  
 
@@ -52,13 +49,15 @@
 
 /*------------------------------------------------------------------------------*/
 
-/* TIMER */
+/* TIMER 
+32-bit down counter supporting free-running and periodic modes
+*/
 
 typedef struct {
 	__IO uint32_t LOAD;						/* Load Count Register */
-	const __IO uint32_t VAL;				/* Current Value Register */
+	const __IO uint32_t CURVAL;				/* Current Value Register */
 	__IO uint32_t CTRL;						/* Control Register */
-	const __IO uint32_t EOI;				/* End of Interrupt Register */
+	__IO uint32_t INTCLR;					/* Interrupt Clear Register */
 	const __IO uint32_t ISR;				/* Interrupt Status Register */
 } Timer_Reg_t;
 
@@ -69,9 +68,12 @@ typedef struct {
 
 /* Timer Control Register bits */
 #define TIMER_CTRL_EN_Pos			(0UL)
-#define TIMER_CTRL_EN				(0x1U << TIMER_CTRL_EN_Pos)
-#define TIMER_CTRL_MODE				(1UL)
-#define TIMER_CTRL_INTMSK			(2UL)
+#define TIMER_CTRL_EN				(0x1U << TIMER_CTRL_EN_Pos)					/* Timer Enable */
+#define TIMER_CTRL_MODE_Pos			(1UL)
+#define TIMER_CTRL_MODE_0			(0x0U << TIMER_CTRL_MODE_Pos)				/* Free-running Counter */
+#define TIMER_CTRL_MODE_1			(0x1U << TIMER_CTRL_MODE_Pos)				/* Periodic Mode */
+#define TIMER_CTRL_INT_Pos			(2UL)
+#define TIMER_CTRL_INT  			(1U << TIMER_CTRL_INT_Pos)					/* Timer Interrupt Enable */
 
 /*------------------------------------------------------------------------------*/
 

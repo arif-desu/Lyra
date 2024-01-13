@@ -17,7 +17,7 @@
 int main()
 {
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 6; i < 9; i++) {
         GPIO_Init(GPIOB, i, OUT);
         GPIO_SetPin(GPIOB, i);
     }
@@ -41,9 +41,7 @@ int main()
             BLUE_RST;
             RED_SET;
         }
-    
     }
 
-    
     return 0;
 }

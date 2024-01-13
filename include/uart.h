@@ -1,7 +1,7 @@
 /**
  @file uart.h
  @brief header file for UART driver
- @detail 
+ @author Arif B (arif.dev@pm.me)
  */
 
 #ifndef __UART_H
