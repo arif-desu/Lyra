@@ -57,7 +57,7 @@ int Timer_GetVal(Timer_Reg_t *TIMERx)
 __attribute__((weak)) void delayus(uint32_t time)
 {
     TIMER1->CTRL = 0;
-    TIMER1->LOAD = time * 50;
+    TIMER1->LOAD = time * 100;
     TIMER1->CTRL |= TIMER_CTRL_MODE_1;
     TIMER1->CTRL |= TIMER_CTRL_EN;
     while (TIMER1->ISR != 0x1);
@@ -69,7 +69,7 @@ __attribute__((weak)) void delayus(uint32_t time)
 __attribute__((weak)) void delayms(uint32_t time)
 {
     TIMER1->CTRL = 0;
-    TIMER1->LOAD = time * 50000;
+    TIMER1->LOAD = time * 100000;
     TIMER1->CTRL |= TIMER_CTRL_MODE_1;
     TIMER1->CTRL |= TIMER_CTRL_EN;
     while (TIMER1->ISR != 0x1);
