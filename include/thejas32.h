@@ -4,7 +4,6 @@
  @author Arif B (arif.dev@pm.me)
 */
 
-
 #ifndef _THEJAS32_H_
 #define _THEJAS32_H_
 
@@ -39,9 +38,10 @@
 */
 
 #define GPIOA_DATA                  (0x10080000UL)   
-#define GPIOB_DATA                  (0x10180000UL)  
-
 #define GPIOA_DIR					((__IO uint32_t *)(0x100C0000UL))
+
+
+#define GPIOB_DATA                  (0x10180000UL)  
 #define GPIOB_DIR					((__IO uint32_t *)(0x101C0000UL))
 
 
@@ -160,7 +160,7 @@ typedef struct {
 
 /* UART Line Status Register */
 
-#define UART_LSR_DATARDY_Pos				(0U)	/* Data Ready bit */
+#define UART_LSR_DATARDY_Pos			(0U)	/* Data Ready bit */
 #define UART_LSR_DATARDY				(1U << 0U)
 #define UART_LSR_OE						(1U)	/* Overrun Error bit */
 #define UART_LSR_PERR					(2U)	/* Parity Error bit */
@@ -173,11 +173,7 @@ typedef struct {
 #define UART_LSR_RXERR					(7U)	/* Receiver FIFO Error */
 
 
-
-
-/* SPI */
-
-
+/*------------------------------------------------------------------------------*/
 
 
 

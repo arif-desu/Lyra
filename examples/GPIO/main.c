@@ -1,5 +1,4 @@
 #include <vega/gpio.h>
-#include <vega/thejas32.h>
 
 #define RED             8
 #define GREEN           6

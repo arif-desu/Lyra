@@ -1,5 +1,4 @@
 #include <vega/gpio.h>
-#include <vega/thejas32.h>
 #include <vega/timer.h>
 
 #define RED             8
