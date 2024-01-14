@@ -7,10 +7,17 @@
 #include <vega/gpio.h>
 
 #include <stdint.h>
+#include <stdlib.h>
 
-void GPIO_Init(uint32_t GPIOx, uint32_t Pin, uint32_t Direction)
+/*---------------------------------------------------------------------------------------------------*/
+
+int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction)
 {
-    if (0 == GPIOx) {
+    if (Pin < 0 || Pin > 15) {
+        return -1;
+    }
+
+    if (GPIOA == GPIOx) {
         switch (Direction) {
             case 0:
                 *GPIOA_DIR &= ~ (1 << Pin);
@@ -19,10 +26,11 @@ void GPIO_Init(uint32_t GPIOx, uint32_t Pin, uint32_t Direction)
                 *GPIOB_DIR |= 1 << Pin;
                 break;
             default:
+                return -1;
                 break;
         }
     }
-    else if (1 == GPIOx) {
+    else if (GPIOB == GPIOx) {
         switch (Direction) {
             case 0:
                 *GPIOA_DIR &= ~ (1 << Pin);
@@ -31,73 +39,120 @@ void GPIO_Init(uint32_t GPIOx, uint32_t Pin, uint32_t Direction)
                 *GPIOB_DIR |= 1 << Pin;
                 break;
             default:
+                return -1;
                 break;
         }
     }
+    else {
+        return -1;
+    }
+
+    return 0;   
+}
+
+/*---------------------------------------------------------------------------------------------------*/
+
+int GPIO_SetPin(uint16_t GPIOx, const uint16_t Pin)
+{
+    if (Pin < 0 || Pin > 15) {
+        return -1;
+    }
+
+    unsigned long PADDR = (1 << Pin) << 2;
+    volatile unsigned long *GPIO_DATA = NULL;
     
+    switch (GPIOx) {
+        case GPIOA:
+            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            break;
+        case GPIOB:
+            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            break;
+        default:
+            return -1;
+    }
+
+    *GPIO_DATA = 1 << Pin;
+
+    return 0;
 }
 
-void GPIO_SetPin(uint32_t GPIOx, const uint32_t Pin)
+/*---------------------------------------------------------------------------------------------------*/
+
+int GPIO_ResetPin(uint16_t GPIOx, const uint16_t Pin)
 {
-    unsigned long PADDR = (1 << Pin) << 2;
-    __IO unsigned long *GPIO_DATA;
-
-    if (0 == GPIOx) {
-        GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+    if (Pin < 0 || Pin > 15) {
+        return -1;
     }
-    else if (1 == GPIOx) {
-        GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
-    }  
 
-    *GPIO_DATA = 1 << Pin; 
-}
-
-void GPIO_ResetPin(uint32_t GPIOx, const uint32_t Pin)
-{
     unsigned long PADDR = (1 << Pin) << 2;
-    __IO unsigned long *GPIO_DATA;
+    volatile unsigned long *GPIO_DATA = NULL;
 
-    if (0 == GPIOx) {
-        GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
-    }
-    else if (1 == GPIOx) {
-        GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+    switch (GPIOx) {
+        case GPIOA:
+            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            break;
+        case GPIOB:
+            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            break;
+        default:
+            return -1;
     }    
 
     *GPIO_DATA = 0 << Pin;
 
+    return 0;
 }
 
-void GPIO_TogglePin(uint32_t GPIOx, const uint32_t Pin)
-{
-    if (0 != GPIOx && Pin >= 0 && Pin <= 15)
-    {
-        unsigned long PADDR = (1 << Pin) << 2;
-        __IO unsigned long *GPIO_DATA;
+/*---------------------------------------------------------------------------------------------------*/
 
-        if (0 == GPIOx) {
-            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;       
-        }
-        else if (1 == GPIOx) {
-            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
-        }
-        *GPIO_DATA ^= 1 << Pin; 
+int GPIO_TogglePin(uint16_t GPIOx, const uint16_t Pin)
+{
+    if (Pin < 0 || Pin > 15) {
+        return -1;
     }
 
-}
-
-int GPIO_ReadPin(uint32_t GPIOx, const uint32_t Pin) 
-{
     unsigned long PADDR = (1 << Pin) << 2;
-    __IO unsigned long *GPIO_DATA;
-    uint32_t data;
-    
-    if (0 == GPIOx) {
-            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;       
-    }
-    else if (1 == GPIOx) {
+    volatile unsigned long *GPIO_DATA = NULL;
+
+    switch (GPIOx) {
+        case GPIOA:
+            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            break;
+        case GPIOB:
             GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            break;
+        default:
+            return -1;
+    }    
+    
+    *GPIO_DATA ^= 1 << Pin; 
+    
+    return 0;
+}
+
+/*---------------------------------------------------------------------------------------------------*/
+
+int GPIO_ReadPin(uint16_t GPIOx, const uint16_t Pin) 
+{
+    if (Pin < 0 || Pin > 15) {
+        return -1;
     }
+    
+    unsigned long PADDR = (1 << Pin) << 2;
+    volatile unsigned long *GPIO_DATA = NULL;
+    uint16_t data;
+    
+    switch (GPIOx) {
+        case GPIOA:
+            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            break;
+        case GPIOB:
+            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            break;
+        default:
+            return -1;
+    } 
 
     data = *GPIO_DATA;
 
@@ -107,10 +162,9 @@ int GPIO_ReadPin(uint32_t GPIOx, const uint32_t Pin)
     else {
         return 0;
     }
-    
-
-    
 }
+
+/*---------------------------------------------------------------------------------------------------*/
 
 
 
