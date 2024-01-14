@@ -49,6 +49,7 @@ To upload code in this mode, press `Ctrl+A S` to send file over serial, select x
 +-----------+
 ```
 
+---
 
 - When **BOOTSEL=1**, the bootloader copies the code from external SPI flash memory to the SRAM. Flashing to this external flash memory is achieved using `xmodemflasher` tool provided by CDAC.
 
@@ -132,14 +133,6 @@ Similar GPIO IP : [ARM PrimeCell GPIO](https://developer.arm.com/documentation/d
 
 ---
 
-## Interrupts
-
-Interrupts can only be enabled/ disabled on a global basis and not individually. There is an event/interrupt controller outside of the core that performs masking and buffering of the interrupt lines. The global interrupt enable is done via the CSR register `MSTATUS`.
-
-ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, i.e. before having saved the `MEPC` and `MSTATUS` register, will cause those register to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
-
----
-
 ## Timer
 
 Thejas32 has 3 timers, each 32-bit down counter.
@@ -159,3 +152,19 @@ If the counter is disabled by clearing the TIMER_CTRL_EN bit in the Timer Contro
 An initial counter value can be loaded by writing to the TIMER_LOAD Register and the counter starts decrementing from this value if the counter is enabled.
 
 The counter decrements each cycle and when the count reaches zero, `0x00000000`, an interrupt is generated and the counter reloads with the value in the TIMER_LOAD Register. The counter starts to decrement again and this whole cycle repeats for as long as the counter is enabled.
+
+---
+# Interrupts and Exceptions
+
+From RISC-V ISA Vol-1 (Unprivileged) : 
+
+- Exception : Used to refer to an unusual condition occurring at runtime associated with an instruction in the current hart.
+
+- Interrupt : Refers to an external asynchronous event that may cause a hart to experience unexpected transfer of control.
+
+## Interrupt
+
+Interrupts can only be enabled/ disabled on a global basis and not individually. There is an event/interrupt controller outside of the core that performs masking and buffering of the interrupt lines. The global interrupt enable is done via the CSR register `MSTATUS`.
+
+ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, i.e. before having saved the `MEPC` and `MSTATUS` register, will cause those register to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
+
