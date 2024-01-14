@@ -13,6 +13,10 @@
 
 int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction)
 {
+    if (Pin < 0 || Pin > 15) {
+        return -1;
+    }
+
     if (GPIOA == GPIOx) {
         switch (Direction) {
             case 0:
@@ -50,6 +54,10 @@ int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction)
 
 int GPIO_SetPin(uint16_t GPIOx, const uint16_t Pin)
 {
+    if (Pin < 0 || Pin > 15) {
+        return -1;
+    }
+
     unsigned long PADDR = (1 << Pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
     
@@ -73,6 +81,10 @@ int GPIO_SetPin(uint16_t GPIOx, const uint16_t Pin)
 
 int GPIO_ResetPin(uint16_t GPIOx, const uint16_t Pin)
 {
+    if (Pin < 0 || Pin > 15) {
+        return -1;
+    }
+
     unsigned long PADDR = (1 << Pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
 
@@ -90,13 +102,16 @@ int GPIO_ResetPin(uint16_t GPIOx, const uint16_t Pin)
     *GPIO_DATA = 0 << Pin;
 
     return 0;
-
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
 int GPIO_TogglePin(uint16_t GPIOx, const uint16_t Pin)
 {
+    if (Pin < 0 || Pin > 15) {
+        return -1;
+    }
+
     unsigned long PADDR = (1 << Pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
 
@@ -114,13 +129,16 @@ int GPIO_TogglePin(uint16_t GPIOx, const uint16_t Pin)
     *GPIO_DATA ^= 1 << Pin; 
     
     return 0;
-
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
 int GPIO_ReadPin(uint16_t GPIOx, const uint16_t Pin) 
 {
+    if (Pin < 0 || Pin > 15) {
+        return -1;
+    }
+    
     unsigned long PADDR = (1 << Pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
     uint16_t data;
