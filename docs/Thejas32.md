@@ -7,9 +7,7 @@ On PoR, the boot-loader starts executing and the BOOTSEL jumper selects where to
 | Jumper Position | BOOTSEL | Boot Mode                     |
 | --------------- | ------- | ----------------------------- |
 | Open            | 0       | UART XMODEM                   |
-| Closed          | 1       | Boot from external SPI flash  |
-
-THEJAS32 does **not** have RAM+FLASH segregation to execute code. All code is executed from the 250 KB SRAM.
+| Closed          | 1       | Boot from internal Flash      |
 
 - When **BOOTSEL=0**, the bootloader waits for the user to upload the executable code (.bin format) over UART and copies the code to SRAM. 
 
@@ -51,7 +49,7 @@ To upload code in this mode, press `Ctrl+A S` to send file over serial, select x
 
 ---
 
-- When **BOOTSEL=1**, the bootloader copies the code from external SPI flash memory to the SRAM. Flashing to this external flash memory is achieved using `xmodemflasher` tool provided by CDAC.
+- When **BOOTSEL=1**, the bootloader copies the code from internal flash memory to the SRAM. Flashing to this flash memory is achieved using `xmodemflasher` tool provided by CDAC.
 
 The program `xmodemflasher` takes 2 arguments :
 
