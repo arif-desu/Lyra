@@ -132,9 +132,9 @@ Data `0xFB` is written to **DATA** register. Only the bits masked with 1 in **PA
 
 ## Timer
 
-Thejas32 has 3 timers, each 32-bit auto-reload down counter.
+Thejas32 has 3 timers, each 32-bit auto-reload down counter : TIMER0, TIMER1, TIMER2
 
-The timers sport 2 modes :
+The timers feature 2 modes :
 
 ### Free-running Mode
 Counter starts with the value 0xFFFFFFFF and counts down to 0.
@@ -146,26 +146,46 @@ If the counter is disabled by clearing the TIMER_CTRL_EN bit in the Timer Contro
 
 
 ### Periodic Mode
-An initial counter value can be loaded by writing to the TIMER_LOAD Register and the counter starts decrementing from this value if the counter is enabled.
+An initial counter value can be loaded by writing to the `TIMER_LOAD` Register and the counter starts decrementing from this value if the counter is enabled.
 
 The counter decrements each cycle and when the count reaches zero, `0x00000000`, an interrupt is generated and the counter reloads with the value in the TIMER_LOAD Register. The counter starts to decrement again and this whole cycle repeats for as long as the counter is enabled.
 
 
+In both modes the end of timer count is signalled by an interrupt. 
+- When masked, the raw interrupt status can be read in `GLOBAL_TIMER_INT_STATUS`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
+- When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit sets to 1 when the interrupt occurs.
+
 #### Prescalar
-There is no clock tree diagram available online, so my guess is as good as yours. From experimentation with the timer, I found loading the value 100 in LOAD register, generates 1 us delay. _Considering the 100 MHz CPU clock as the bus clock_, it means it takes 100 cycles of bus to the timer to count down to 0, making the prescalar 100.
+There is no clock tree diagram available, so my guess is as good as yours. We consider the CPU bus clock to be 100 MHz as advertised.
+
+From experimentation with the timer :
+
+- Case 1 : Timer initialized with interrupt masked (`Timer_Init()`), TIMER_LOAD = 50 for a 1us delay and (50*1000) for 1ms delay.
+- Case 2 : Timer initialized with interrupt unmasked (`Timer_Init_IT()`), TIMER_LOAD = 100 for a 1us delay and (100*1000) for 1ms delay.
+
+
 
 ---
 # Interrupts and Exceptions
 
-From RISC-V ISA Vol-1 (Unprivileged) : 
+These are RISC-V definitions : 
 
-- Exception : Used to refer to an unusual condition occurring at runtime associated with an instruction in the current hart.
+- **Exception** : Used to refer to an unusual condition occurring at runtime (ie synchronous in nature) associated with an instruction in the current core. Eg : Illegal instruction
 
-- Interrupt : Refers to an external asynchronous event that may cause a hart to experience unexpected transfer of control.
+- **Interrupt** : Refers to an external asynchronous event that may cause a hart to experience unexpected transfer of control. Typically done by peripherals.
+
+The transfer of control in both cases is called a **Trap**.
 
 ## Interrupt
 
-Interrupts can only be enabled/ disabled on a global basis and not individually. There is an event/interrupt controller outside of the core that performs masking and buffering of the interrupt lines. The global interrupt enable is done via the CSR register `MSTATUS`.
+Interrupts can only be **enabled/ disabled on a global basis** and not individually. There is an event/interrupt controller outside of the core that performs masking and buffering of the interrupt lines. 
 
 ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, i.e. before having saved the `MEPC` and `MSTATUS` register, will cause those register to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
 
+
+Example for timer interrupt :
+- Initialize timer in interrupt mode `Timer_Init_IT()`.
+- Enable global interrupts `__enable_irq()`
+- Enable timer interrupt in PLIC (Platform-level Interrupt Controller) with `PLIC_Enable()`, which takes the interrupt number as argument.
+- Define the IRQHandler routine. Make sure to clear the timer interrupt with `Timer_ClearInterrupt()` before return.
+- Start Timer
