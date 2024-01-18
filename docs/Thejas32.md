@@ -7,9 +7,9 @@ On PoR, the boot-loader starts executing and the BOOTSEL jumper selects where to
 | Jumper Position | BOOTSEL | Boot Mode                     |
 | --------------- | ------- | ----------------------------- |
 | Open            | 0       | UART XMODEM                   |
-| Closed          | 1       | Boot from internal Flash      |
+| Closed          | 1       | Boot from SPI Flash           |
 
-- When **BOOTSEL=0**, the bootloader waits for the user to upload the executable code (.bin format) over UART and copies the code to SRAM. 
+- When **BOOTSEL=0**, the bootloader waits for the user to upload the executable code (.bin format) over UART. The downloaded code is copied to RAM and code execution begins.
 
 ```
 +-----------------------------------------------------------------------------+
@@ -49,7 +49,7 @@ To upload code in this mode, press `Ctrl+A S` to send file over serial, select x
 
 ---
 
-- When **BOOTSEL=1**, the bootloader copies the code from internal flash memory to the SRAM. Flashing to this flash memory is achieved using `xmodemflasher` tool provided by CDAC.
+- When **BOOTSEL=1**, the bootloader copies the code from external SPI flash memory to the SRAM. Flashing to this flash memory is achieved using `xmodemflasher` tool provided by CDAC.
 
 The program `xmodemflasher` takes 2 arguments :
 
@@ -87,7 +87,7 @@ Here's the console log when BOOTSEL=1 :
 
 ## GPIO
 
-ET1031 has two GPIO controllers - GPIOA, GPIOB - each of them 16 bit wide.
+Thejas32 has two GPIO controllers - GPIOA, GPIOB - each of them 16 bit wide.
 
 GPIO is accessible with two registers :
 
@@ -106,7 +106,7 @@ The PADDR register needs to be set/reset at appropriate location and bit for wri
 
 `GPIOB_BASE` = 0x10180000
 
-Suppose you wish to write logical LOW to GPIOA Pin 5 :
+Suppose you wish to write logical _LOW_ to GPIOA Pin 5 :
 
 We define address `PADDR` as `( (1 << pin) << 2 )`. `PADDR` acts as a mask for `GPIO_DATA`
 
@@ -124,16 +124,15 @@ Here's a figure explaining the operation on a similar 8-bit implementation (ET10
 
 ![Image.png](https://res.craft.do/user/full/3372ef50-799d-12ab-837f-d73801b8cbf5/doc/061B987D-3FA8-42F2-BFA2-2ECEB04F74BE/3209E924-C79F-48BE-B26B-9E9BD74227A7_2/hH8PsSCTw7rwsinyryjaLHft2fTTxshhD2ATXJSxLyIz/Image.png)
 
-Data `0xFB` is written to **DATA** register. Only the bits masked with 1 in **PADDR** get changed in GPIO_DATA (bits 5 and 2).
+*u = unchanged
 
-
-Similar GPIO IP : [ARM PrimeCell GPIO](https://developer.arm.com/documentation/ddi0142/b/functional-overview/arm-primecell-general-purpose-input-output--pl060--overview?lang=en)
+Data `0xFB` is written to **DATA** register. Only the bits masked with 1 in **PADDR** get modified in GPIO_DATA (bits 5 and 2).
 
 ---
 
 ## Timer
 
-Thejas32 has 3 timers, each 32-bit down counter.
+Thejas32 has 3 timers, each 32-bit auto-reload down counter.
 
 The timers sport 2 modes :
 
@@ -141,7 +140,7 @@ The timers sport 2 modes :
 Counter starts with the value 0xFFFFFFFF and counts down to 0.
 Alternatively, a value can be loaded into the TIMER_LOAD register can timer starts counting down from this value. 
 
-When the count reaches zero, 0x00000000, an interrupt is generated and the counter wraps around to 0xFFFFFFFF irrespective of the value in the TIMER_LOAD register.
+When the count reaches zero (0x00000000), an interrupt is generated and the counter wraps around to 0xFFFFFFFF irrespective of the value in the TIMER_LOAD register.
 
 If the counter is disabled by clearing the TIMER_CTRL_EN bit in the Timer Control Register, the counter halts and holds its current value. If the counter is re-enabled again then the counter continues decrementing from the current value.
 
@@ -150,6 +149,10 @@ If the counter is disabled by clearing the TIMER_CTRL_EN bit in the Timer Contro
 An initial counter value can be loaded by writing to the TIMER_LOAD Register and the counter starts decrementing from this value if the counter is enabled.
 
 The counter decrements each cycle and when the count reaches zero, `0x00000000`, an interrupt is generated and the counter reloads with the value in the TIMER_LOAD Register. The counter starts to decrement again and this whole cycle repeats for as long as the counter is enabled.
+
+
+#### Prescalar
+There is no clock tree diagram available online, so my guess is as good as yours. From experimentation with the timer, I found loading the value 100 in LOAD register, generates 1 us delay. _Considering the 100 MHz CPU clock as the bus clock_, it means it takes 100 cycles of bus to the timer to count down to 0, making the prescalar 100.
 
 ---
 # Interrupts and Exceptions

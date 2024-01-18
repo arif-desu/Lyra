@@ -14,7 +14,6 @@
 #define BLUE_SET        GPIO_ResetPin(GPIOB, BLUE)
 #define BLUE_RST        GPIO_SetPin(GPIOB, BLUE)
 
-
 int main()
 {
 
@@ -26,19 +25,19 @@ int main()
 
     while (1) {
         RED_SET;
-        delayms(1000);
+        delayms(500);
         RED_RST;
-        delayms(1000);
+        delayms(500);
 
         GREEN_SET;
-        delayms(1000);
+        delayms(500);
         GREEN_RST;
-        delayms(1000);
+        delayms(500);
 
         BLUE_SET;
-        delayms(1000);
+        delayms(500);
         BLUE_RST;
-        delayms(1000); 
+        delayms(500); 
     }
     
     return 0;

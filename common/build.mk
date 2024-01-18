@@ -31,7 +31,7 @@ C_SOURCES +=
 
 # ASM sources
 ASM_SOURCES +=  \
-$(VEGA_SDK_PATH)/startup.s
+$(VEGA_SDK_PATH)/startup_thejas32.s 
 
 #######################################
 # binaries

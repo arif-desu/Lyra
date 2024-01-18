@@ -1,5 +1,5 @@
 /**
- @file uart.c
+ @file hal_uart.c
  @brief Contains routines for UART interface
  @author Arif B <arif.dev@pm.me>
  */
@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
+/*---------------------------------------------------------------------------------------------------*/
 
 /* 
 Initialises UART controller in blocking mode 

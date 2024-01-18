@@ -7,13 +7,15 @@
 #ifndef _THEJAS32_H_
 #define _THEJAS32_H_
 
+
 #ifdef __cplusplus
     extern "C" {
 #endif /* __cpluscplus */
 
 #include <stdint.h>
 
-#define __IO    volatile
+#define __IO    	volatile
+
 
 #define SYSTEMCLK		(100000000UL)		/* 100 MHz core clock */
 #define UARTCLK			(40000000UL)		/* 40 MHz UART Bus Clock ? */
@@ -32,39 +34,44 @@
 #define PLIC_SWINTR_EN					(0x20010400UL)
 
 
-
+/*---------------------------------------------------------------------------------------------------*/
 /*
 * @brief GPIO Registers
 */
 
-#define GPIOA_DATA                  (0x10080000UL)   
+#define GPIOA_BASE                  (0x10080000UL)   
 #define GPIOA_DIR					((__IO uint32_t *)(0x100C0000UL))
 
 
-#define GPIOB_DATA                  (0x10180000UL)  
+#define GPIOB_BASE                  (0x10180000UL)  
 #define GPIOB_DIR					((__IO uint32_t *)(0x101C0000UL))
 
 
 
 
-/*------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
 
 /* TIMER 
-32-bit down counter supporting free-running and periodic modes
+32-bit auto-reload down counter
 */
 
 typedef struct {
 	__IO uint32_t LOAD;						/* Load Count Register */
 	const __IO uint32_t CURVAL;				/* Current Value Register */
 	__IO uint32_t CTRL;						/* Control Register */
-	__IO uint32_t INTCLR;					/* Interrupt Clear Register */
+	const __IO uint32_t INTCLR;				/* Interrupt Clear Register */
 	const __IO uint32_t ISR;				/* Interrupt Status Register */
 } Timer_Reg_t;
 
 
-#define TIMER1						((Timer_Reg_t *)(TIMER_BASE + 0x00UL))
-#define TIMER2						((Timer_Reg_t *)(TIMER_BASE + 0x14UL))
-#define TIMER3						((Timer_Reg_t *)(TIMER_BASE + 0x28UL))
+#define TIMER0						((Timer_Reg_t *)(TIMER_BASE + 0x00UL))			
+#define TIMER1						((Timer_Reg_t *)(TIMER_BASE + 0x14UL))
+#define TIMER2						((Timer_Reg_t *)(TIMER_BASE + 0x28UL))
+
+#define GLOBAL_TIMER_RAWINT_STATUS	(*(__IO uint32_t *)(TIMER_BASE + 0xA8UL))
+#define TIMER0_RAWINT_STATUS		(0x1UL)
+#define TIMER1_RAWINT_STATUS		(0x2UL)
+#define TIMER2_RAWINT_STATUS		(0x4UL)
 
 /* Timer Control Register bits */
 #define TIMER_CTRL_EN_Pos			(0UL)
@@ -73,10 +80,26 @@ typedef struct {
 #define TIMER_CTRL_MODE_0			(0x0U << TIMER_CTRL_MODE_Pos)				/* Free-running Counter */
 #define TIMER_CTRL_MODE_1			(0x1U << TIMER_CTRL_MODE_Pos)				/* Periodic Mode */
 #define TIMER_CTRL_INT_Pos			(2UL)
-#define TIMER_CTRL_INT  			(1U << TIMER_CTRL_INT_Pos)					/* Timer Interrupt Enable */
+#define TIMER_CTRL_INT_Msk  		(1U << TIMER_CTRL_INT_Pos)					/* Timer Interrupt Mask */
 
-/*------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
 
+/*
+PLIC - Platform-Level Interrupt Controller (for External Interrupts)
+*/
+
+typedef struct {
+	const __IO uint32_t RAWSTATUS;				/* Raw Interrupt Status */
+	const uint32_t Padding1;					/* Address Padding*/
+	__IO uint32_t INTEN;						/* Interrupt Enable */
+	const uint32_t Padding2;					/* Address padding */
+	const __IO uint32_t MSKSTATUS;				/* Masked Interrupt Status */
+} PLIC_Reg_t;
+
+
+#define PLIC						((PLIC_Reg_t *)0x20010000UL)
+
+/*---------------------------------------------------------------------------------------------------*/
 /*
 * UART Controller
 Based on UART16550/16450
@@ -173,7 +196,7 @@ typedef struct {
 #define UART_LSR_RXERR					(7U)	/* Receiver FIFO Error */
 
 
-/*------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------------------------*/
 
 
 

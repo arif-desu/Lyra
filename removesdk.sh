@@ -25,7 +25,7 @@ if [ -d "$SDK_PATH" ];then
     rm -rf $SDK_PATH
 fi
 
-printf "Remove the RISC-V toolchain (Y/n):"
+printf "Remove the RISC-V Toolchain (Y/n):"
 read -r input 
 
 if [ -z "$input" ] || [ "${input^^}" = "Y" ]; then
@@ -48,7 +48,7 @@ case "$DEFAULT_SHELL" in
     ;;
   *)
     printf "Unsupported shell: %s
-    Manually delete the environment variable VEGA_SDK_PATH in your shell rc file",$DEFAULT_SHELL
+    Manually delete the environment variable VEGA_SDK_PATH from your shell profile",$DEFAULT_SHELL
     ;;
 esac
 

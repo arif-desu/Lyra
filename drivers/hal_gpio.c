@@ -1,5 +1,5 @@
-/** @file gpio.c
- *  @brief APIs related to GPIO for THEJAS32
+/** @file hal_gpio.c
+ *  @brief GPIO routines for THEJAS32
  *  @author Arif B <arif.dev@pm.me>
  */
 
@@ -23,7 +23,7 @@ int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction)
                 *GPIOA_DIR &= ~ (1 << Pin);
                 break;
             case 1:
-                *GPIOB_DIR |= 1 << Pin;
+                *GPIOA_DIR |= 1 << Pin;
                 break;
             default:
                 return -1;
@@ -33,7 +33,7 @@ int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction)
     else if (GPIOB == GPIOx) {
         switch (Direction) {
             case 0:
-                *GPIOA_DIR &= ~ (1 << Pin);
+                *GPIOB_DIR &= ~ (1 << Pin);
                 break;
             case 1:
                 *GPIOB_DIR |= 1 << Pin;
@@ -63,10 +63,10 @@ int GPIO_SetPin(uint16_t GPIOx, const uint16_t Pin)
     
     switch (GPIOx) {
         case GPIOA:
-            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOA_BASE | PADDR) ;
             break;
         case GPIOB:
-            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
             return -1;
@@ -90,10 +90,10 @@ int GPIO_ResetPin(uint16_t GPIOx, const uint16_t Pin)
 
     switch (GPIOx) {
         case GPIOA:
-            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOA_BASE | PADDR) ;
             break;
         case GPIOB:
-            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
             return -1;
@@ -117,10 +117,10 @@ int GPIO_TogglePin(uint16_t GPIOx, const uint16_t Pin)
 
     switch (GPIOx) {
         case GPIOA:
-            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOA_BASE | PADDR) ;
             break;
         case GPIOB:
-            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
             return -1;
@@ -145,10 +145,10 @@ int GPIO_ReadPin(uint16_t GPIOx, const uint16_t Pin)
     
     switch (GPIOx) {
         case GPIOA:
-            GPIO_DATA = (unsigned long *) (GPIOA_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOA_BASE | PADDR) ;
             break;
         case GPIOB:
-            GPIO_DATA = (unsigned long *) (GPIOB_DATA | PADDR) ;
+            GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
             return -1;
