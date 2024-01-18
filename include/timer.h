@@ -13,8 +13,13 @@
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* Configures the Timer in Blocking Mode */
+/* Configures the Timer in Blocking mode */
 int Timer_Init(Timer_Reg_t *TIMERx, uint16_t Mode, uint32_t Val);
+
+/*---------------------------------------------------------------------------------------------------*/
+
+/* Configures the Timer in Interrupt mode */
+int Timer_Init_IT(Timer_Reg_t *TIMERx, uint16_t Mode, uint32_t Val);
 
 /*---------------------------------------------------------------------------------------------------*/
 
@@ -28,8 +33,13 @@ void Timer_Stop(Timer_Reg_t *TIMERx);
 
 /*---------------------------------------------------------------------------------------------------*/
 
+/* Clears the timer interrupt */
+int Timer_ClearInterrupt(Timer_Reg_t *TIMERx);
+
+/*---------------------------------------------------------------------------------------------------*/
+
 /* Reads the current value of counter in Timer */
-int Timer_GetVal(Timer_Reg_t *TIMERx);
+int Timer_GetCount(Timer_Reg_t *TIMERx);
 
 /*---------------------------------------------------------------------------------------------------*/
 
@@ -38,7 +48,7 @@ void delayus(uint32_t time);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* Generate a blocking in milliseconds */
+/* Generate a blocking delay in milliseconds */
 void delayms(uint32_t time);
 
 /*---------------------------------------------------------------------------------------------------*/

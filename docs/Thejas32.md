@@ -7,9 +7,9 @@ On PoR, the boot-loader starts executing and the BOOTSEL jumper selects where to
 | Jumper Position | BOOTSEL | Boot Mode                     |
 | --------------- | ------- | ----------------------------- |
 | Open            | 0       | UART XMODEM                   |
-| Closed          | 1       | Boot from internal Flash      |
+| Closed          | 1       | Boot from SPI Flash           |
 
-- When **BOOTSEL=0**, the bootloader waits for the user to upload the executable code (.bin format) over UART and copies the code to SRAM. 
+- When **BOOTSEL=0**, the bootloader waits for the user to upload the executable code (.bin format) over UART. The downloaded code is copied to RAM and code execution begins.
 
 ```
 +-----------------------------------------------------------------------------+
@@ -49,7 +49,7 @@ To upload code in this mode, press `Ctrl+A S` to send file over serial, select x
 
 ---
 
-- When **BOOTSEL=1**, the bootloader copies the code from internal flash memory to the SRAM. Flashing to this flash memory is achieved using `xmodemflasher` tool provided by CDAC.
+- When **BOOTSEL=1**, the bootloader copies the code from external SPI flash memory to the SRAM. Flashing to this flash memory is achieved using `xmodemflasher` tool provided by CDAC.
 
 The program `xmodemflasher` takes 2 arguments :
 
@@ -87,7 +87,7 @@ Here's the console log when BOOTSEL=1 :
 
 ## GPIO
 
-ET1031 has two GPIO controllers - GPIOA, GPIOB - each of them 16 bit wide.
+Thejas32 has two GPIO controllers - GPIOA, GPIOB - each of them 16 bit wide.
 
 GPIO is accessible with two registers :
 
@@ -106,7 +106,7 @@ The PADDR register needs to be set/reset at appropriate location and bit for wri
 
 `GPIOB_BASE` = 0x10180000
 
-Suppose you wish to write logical LOW to GPIOA Pin 5 :
+Suppose you wish to write logical _LOW_ to GPIOA Pin 5 :
 
 We define address `PADDR` as `( (1 << pin) << 2 )`. `PADDR` acts as a mask for `GPIO_DATA`
 
@@ -124,45 +124,68 @@ Here's a figure explaining the operation on a similar 8-bit implementation (ET10
 
 ![Image.png](https://res.craft.do/user/full/3372ef50-799d-12ab-837f-d73801b8cbf5/doc/061B987D-3FA8-42F2-BFA2-2ECEB04F74BE/3209E924-C79F-48BE-B26B-9E9BD74227A7_2/hH8PsSCTw7rwsinyryjaLHft2fTTxshhD2ATXJSxLyIz/Image.png)
 
-Data `0xFB` is written to **DATA** register. Only the bits masked with 1 in **PADDR** get changed in GPIO_DATA (bits 5 and 2).
+*u = unchanged
 
-
-Similar GPIO IP : [ARM PrimeCell GPIO](https://developer.arm.com/documentation/ddi0142/b/functional-overview/arm-primecell-general-purpose-input-output--pl060--overview?lang=en)
+Data `0xFB` is written to **DATA** register. Only the bits masked with 1 in **PADDR** get modified in GPIO_DATA (bits 5 and 2).
 
 ---
 
 ## Timer
 
-Thejas32 has 3 timers, each 32-bit down counter.
+Thejas32 has 3 timers, each 32-bit auto-reload down counter : TIMER0, TIMER1, TIMER2
 
-The timers sport 2 modes :
+The timers feature 2 modes :
 
 ### Free-running Mode
 Counter starts with the value 0xFFFFFFFF and counts down to 0.
 Alternatively, a value can be loaded into the TIMER_LOAD register can timer starts counting down from this value. 
 
-When the count reaches zero, 0x00000000, an interrupt is generated and the counter wraps around to 0xFFFFFFFF irrespective of the value in the TIMER_LOAD register.
+When the count reaches zero (0x00000000), an interrupt is generated and the counter wraps around to 0xFFFFFFFF irrespective of the value in the TIMER_LOAD register.
 
 If the counter is disabled by clearing the TIMER_CTRL_EN bit in the Timer Control Register, the counter halts and holds its current value. If the counter is re-enabled again then the counter continues decrementing from the current value.
 
 
 ### Periodic Mode
-An initial counter value can be loaded by writing to the TIMER_LOAD Register and the counter starts decrementing from this value if the counter is enabled.
+An initial counter value can be loaded by writing to the `TIMER_LOAD` Register and the counter starts decrementing from this value if the counter is enabled.
 
 The counter decrements each cycle and when the count reaches zero, `0x00000000`, an interrupt is generated and the counter reloads with the value in the TIMER_LOAD Register. The counter starts to decrement again and this whole cycle repeats for as long as the counter is enabled.
+
+
+In both modes the end of timer count is signalled by an interrupt. 
+- When masked, the raw interrupt status can be read in `GLOBAL_TIMER_INT_STATUS`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
+- When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit sets to 1 when the interrupt occurs.
+
+#### Prescalar
+There is no clock tree diagram available, so my guess is as good as yours. We consider the CPU bus clock to be 100 MHz as advertised.
+
+From experimentation with the timer :
+
+- Case 1 : Timer initialized with interrupt masked (`Timer_Init()`), TIMER_LOAD = 50 for a 1us delay and (50*1000) for 1ms delay.
+- Case 2 : Timer initialized with interrupt unmasked (`Timer_Init_IT()`), TIMER_LOAD = 100 for a 1us delay and (100*1000) for 1ms delay.
+
+
 
 ---
 # Interrupts and Exceptions
 
-From RISC-V ISA Vol-1 (Unprivileged) : 
+These are RISC-V definitions : 
 
-- Exception : Used to refer to an unusual condition occurring at runtime associated with an instruction in the current hart.
+- **Exception** : Used to refer to an unusual condition occurring at runtime (ie synchronous in nature) associated with an instruction in the current core. Eg : Illegal instruction
 
-- Interrupt : Refers to an external asynchronous event that may cause a hart to experience unexpected transfer of control.
+- **Interrupt** : Refers to an external asynchronous event that may cause a hart to experience unexpected transfer of control. Typically done by peripherals.
+
+The transfer of control in both cases is called a **Trap**.
 
 ## Interrupt
 
-Interrupts can only be enabled/ disabled on a global basis and not individually. There is an event/interrupt controller outside of the core that performs masking and buffering of the interrupt lines. The global interrupt enable is done via the CSR register `MSTATUS`.
+Interrupts can only be **enabled/ disabled on a global basis** and not individually. There is an event/interrupt controller outside of the core that performs masking and buffering of the interrupt lines. 
 
 ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, i.e. before having saved the `MEPC` and `MSTATUS` register, will cause those register to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
 
+
+Example for timer interrupt :
+- Initialize timer in interrupt mode `Timer_Init_IT()`.
+- Enable global interrupts `__enable_irq()`
+- Enable timer interrupt in PLIC (Platform-level Interrupt Controller) with `PLIC_Enable()`, which takes the interrupt number as argument.
+- Define the IRQHandler routine. Make sure to clear the timer interrupt with `Timer_ClearInterrupt()` before return.
+- Start Timer

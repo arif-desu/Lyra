@@ -3,6 +3,7 @@
 # THEJAS32 SDK setup script
 # Author - Arif B <arif.dev@pm.me>
 
+# Colors require ncurses to be installed
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
@@ -80,7 +81,7 @@ echo "export VEGA_SDK_PATH=$SDK_PATH" >> $RC_FILE
 
 # Download RISC-V toolchain 
 # WIP, Downloading a fixed release for Linux currently
-printf "\n${YELLOW}Download RISC-V toolchain? (Y/n) :${NORMAL}"
+printf "\n${YELLOW}Download RISC-V Toolchain? (Y/n) :${NORMAL}"
 read -r input
 
 if [ -z "$input" ] || [ "${input^^}" = "Y" ]; then

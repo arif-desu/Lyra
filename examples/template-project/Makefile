@@ -5,7 +5,7 @@ TARGET = vega_app
 # REMARK - To include all drivers: $(wildcard $(VEGA_SDK_PATH)/drivers/*.c)
 C_SOURCES = \
 main.c \
-$(VEGA_SDK_PATH)/drivers/gpio.c
+$(VEGA_SDK_PATH)/drivers/hal_gpio.c
 
 # C header include path(s)
 C_INCLUDES = 
