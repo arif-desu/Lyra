@@ -1,9 +1,9 @@
 # Lyra
 
-Lyra is an alternative SDK for CDAC's VEGA series of micro-controllers, encompassing its development, documentation, and resources for seamless integration, inspired by the brilliance of the constellation's brightest star - Vega.
+Lyra is an alternative SDK for CDAC's VEGA series of micro-controllers, encompassing its development, documentation, and resources for a seamless experience. The name is inspired by the brilliance of the constellation's brightest star - Vega.
 
 ### **DISCLAIMER** 
-The project is NOT affiliated to endorsed by CDAC (Centre for Developemnet of Advanced Computing). This is an independent project with original works.
+The project is NOT affiliated to or endorsed by CDAC (Centre for Developemnet of Advanced Computing). This is an independent project with original works.
 
 It comes with no warranty, programming done with a mix of documentation, reverse-enginerring and experimentation.
 
