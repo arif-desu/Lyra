@@ -1,6 +1,6 @@
 # Lyra
 
-Lyra is an alternative SDK for CDAC's VEGA series of micro-controllers, encompassing its development, documentation, and resources for a seamless experience. The name is inspired by the brilliance of the constellation's brightest star - Vega.
+Lyra is an alternative SDK for CDAC's VEGA series of micro-controllers, encompassing its development, documentation, and resources for a seamless experience. The name is inspired by the constellation hosting one of the brightest night stars - Vega.
 
 ### **DISCLAIMER** 
 The project is NOT affiliated to or endorsed by CDAC (Centre for Developemnet of Advanced Computing). This is an independent project with original works.
@@ -30,6 +30,7 @@ My personal recommendation is Microsoft's [Visual Studio Code](https://code.visu
 
 Install LLVM's clangd extension (Idendtifier: `llvm-vs-code-extensions.vscode-clangd`) for code completion and static code analysis.
 
+Windows users utilizing WSL, read [Connect USB Devices](https://learn.microsoft.com/en-us/windows/wsl/connect-usb) to connect the board to the WSL virtual machine.
 
 ---
 
