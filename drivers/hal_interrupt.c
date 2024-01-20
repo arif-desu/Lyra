@@ -63,8 +63,8 @@ void __enable_irq(void)
 
 void __disable_irq(void)
 {
-    csr_clrbit(mie, MIE_EIE)
-    csr_clrbit(mstatus, MSTATUS_MIE)
+    clear_csr(mie, MIE_EIE);
+    clear_csr(mstatus, MSTATUS_MIE);
 }
 
 /*---------------------------------------------------------------------------------------------------*/
