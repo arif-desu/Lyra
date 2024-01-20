@@ -160,8 +160,8 @@ There is no clock tree diagram available, so my guess is as good as yours. We co
 
 From experimentation with the timer :
 
-- Case 1 : Timer initialized with interrupt masked (`Timer_Init()`), TIMER_LOAD = 50 for a 1us delay and (50*1000) for 1ms delay.
-- Case 2 : Timer initialized with interrupt unmasked (`Timer_Init_IT()`), TIMER_LOAD = 100 for a 1us delay and (100*1000) for 1ms delay.
+- Case 1 : Timer initialized with interrupt masked (`Timer_Init()`), TIMER_LOAD Value = 25-50 for a 1us delay (*1000 for 1ms delay)
+- Case 2 : Timer initialized with interrupt un-masked (`Timer_Init_IT()`), TIMER_LOAD = 100 for a 1us delay and (100*1000) for 1ms delay.
 
 
 

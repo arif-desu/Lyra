@@ -23,8 +23,8 @@ int GPIO_Init( uint16_t GPIOx,
 
 - **Return** : 
 
-    - Returns `0` on successfull configuration. 
-    - Returns `-1` on invalid input 
+    - Returns `0` on successful configuration. 
+    - Returns `-1` on invalid argument input 
 
 ---
 
@@ -44,8 +44,8 @@ int GPIO_SetPin( uint16_t GPIOx,
 
 - **Return** : 
 
-    - Returns `0` on successfull configuration. 
-    - Returns `-1` on invalid input 
+    - Returns `0` on successful configuration. 
+    - Returns `-1` on invalid argument input 
 
 ---
 
@@ -63,9 +63,8 @@ int GPIO_ResetPin( uint16_t GPIOx,
 
 - **Return** : 
 
-    - Returns `0` on successfull configuration. 
-    - Returns `-1` on invalid input 
-
+    - Returns `0` on successful configuration. 
+    - Returns `-1` on invalid argument input 
 ---
 
 #### GPIO_TogglePin()
@@ -83,8 +82,8 @@ int GPIO_TogglePin( uint16_t GPIOx,
 
 - **Return** : 
 
-    - Returns `0` on successfull configuration. 
-    - Returns `-1` on invalid input 
+    - Returns `0` on successful configuration. 
+    - Returns `-1` on invalid argument input 
 
 ---
 
@@ -105,4 +104,103 @@ int GPIO_ReadPin( uint16_t GPIOx,
 
     - Returns `1` for a a logical HIGH.
      - Returns `0` for a logical LOW.
-    - Returns `-1` on invalid input 
+    - Returns `-1` on invalid argument input 
+
+---
+
+## Timer
+
+#### Timer_Init()
+```c
+int Timer_Init( Timer_Reg_t *TIMERx, 
+                uint16_t Mode, 
+                uint32_t Val )
+```
+
+- **Description** : Initialises Timer module with interrupt masked.
+
+- **Parameters** : 
+
+    - `TIMERx` - Timer Module to be initialized. Accepts TIMER0, TIMER1, TIMER2
+    - `Mode` - Timer mode. Free-running (`TIMER_MODE_FREERUN`) or Periodic (`TIMER_MODE_PERIODIC`)
+    - `Val` - Value to be loaded into timer counter
+
+- **Return** : 
+
+    - Returns `0` for configuration
+    - Returns `-1` if TIMERx is passed as NULL
+
+---
+
+#### Timer_Init_IT()
+```c
+int Timer_Init( Timer_Reg_t *TIMERx, 
+                uint16_t Mode, 
+                uint32_t Val )
+```
+
+The same as `Timer_Init()`, only initialises timer with interrupt un-masked.
+
+---
+
+#### Timer_Start()
+```c
+void Timer_Start(Timer_Reg_t *TIMERx)
+```
+- **Description** : Starts the timer counter for specified Timer.
+
+- **Parameters** : 
+
+    - `TIMERx` - Timer module to start.
+
+- **Return** : void return type
+
+---
+
+#### Timer_Stop()
+```c
+void Timer_Stop(Timer_Reg_t *TIMERx)
+```
+- **Description** : Stops the timer counter for specified Timer.
+
+- **Parameters** : 
+
+    - `TIMERx` - Timer module to stop.
+
+- **Return** : void return type
+
+---
+
+#### Timer_GetCount()
+
+```c
+int Timer_GetCount(Timer_Reg_t *TIMERx)
+```
+
+- **Description** : Reads the timer counter value for specified Timer.
+
+- **Parameters** : 
+
+    - `TIMERx` - Timer module to stop.
+
+- **Return** : 
+    - Returns counter value
+    - Returns `-1` for invalid argument input
+
+---
+
+#### Timer_ClearInterrupt()
+```c
+int Timer_ClearInterrupt(Timer_Reg_t *TIMERx)
+```
+- **Description** : Reads the interrupt status bit for specified Timer to mark End-Of-Interrupt. This should be called everytime the interrupt occurs - either through polling the `TIMERx->ISR` or in ISR Routine.
+
+- **Parameters** : 
+
+    - `TIMERx` - Timer module.
+
+- **Return** : 
+    - Returns counter value
+    - Returns `-1` for invalid argument input
+
+---
