@@ -25,11 +25,14 @@ int main()
     GPIO_Init(GPIOB, 2, IN);
     
     while (1) {
+        // Check Button 0 is pressed
         if (GPIO_ReadPin(GPIOB, 3) == 0) {
             RED_RST;
             BLUE_RST;
             GREEN_SET;
         }
+
+        // Check Button 1 is pressed
         else if (GPIO_ReadPin(GPIOB, 2) == 0) {
             RED_RST;
             GREEN_RST;

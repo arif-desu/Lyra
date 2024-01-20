@@ -106,7 +106,7 @@ void ISR_Delegator(void)
         cause = ((read_csr(mcause) << 1) >> 1);
 
         if (MCAUSE_EXTI == cause) {
-            uint32_t intstat = PLIC->MSKSTATUS;
+            uint32_t intstat = PLIC->INTSTATUS;
 
             for (uint32_t i = 0; i < 32; i++) {
                 if ((intstat >> i) & 0x1UL) {

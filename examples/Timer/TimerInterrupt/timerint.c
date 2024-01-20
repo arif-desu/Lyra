@@ -2,7 +2,6 @@
 #include <vega/interrupt.h>
 #include <vega/thejas32.h>
 #include <vega/timer.h>
-#include <vega/csr.h>
 
 #define RED             8
 #define GREEN           6
@@ -66,7 +65,7 @@ int main()
 
 
     while (1) {
-    
+        //infinite loop
         
     }
     
