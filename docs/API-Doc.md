@@ -204,3 +204,61 @@ int Timer_ClearInterrupt(Timer_Reg_t *TIMERx)
     - Returns `-1` for invalid argument input
 
 ---
+
+## Interrupts
+
+#### __enable_irq()
+```c
+void __enable_irq(void)
+```
+- **Description** : Enables interrupts globally.
+
+- **Parameters** : None
+
+- **Return** : void
+
+---
+
+#### __disable_irq()
+```c
+void __disable_irq(void)
+```
+- **Description** : Disables interrupts globally.
+
+- **Parameters** : None
+
+- **Return** : void
+
+---
+
+#### PLIC_Enable()
+```c
+int PLIC_Enable(uint16_t IRQn)
+```
+- **Description** : Registers an interrupt in the PLIC (Platform-level Interrupt Controller) specified by the interrupt number
+
+- **Parameters** : 
+    - `IRQn` : Interrupt Request Number. See memory map or interrupt.h. These are also defined by macros in interrupt.h
+
+- **Return** : 
+
+    - Returns `0` on success
+    - Returns `-1` for invalid argument.
+
+---
+
+#### PLIC_Enable()
+```c
+int PLIC_Enable(uint16_t IRQn)
+```
+- **Description** : De-registers an interrupt in the PLIC (Platform-level Interrupt Controller) specified by the interrupt number.
+
+- **Parameters** : 
+    - `IRQn` : Interrupt Request Number. See memory map or interrupt.h. These are also defined by macros in interrupt.h
+
+- **Return** : 
+
+    - Returns `0` on success
+    - Returns `-1` for invalid argument.
+
+---
