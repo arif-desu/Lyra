@@ -1,4 +1,4 @@
-# Thejas32 Memory Map
+# THEJAS32 Memory Map
 
 | Peripheral/Register                   | Start       | End         | Interrupt Number  |
 | ------------------------------------- | ----------- | ----------- | ----------------- | 
@@ -13,9 +13,9 @@
 | TIMER0                                | 0x1000_0A00 | 0x1000_0A10 | 7                 |
 | TIMER1                                | 0x1000_0A14 | 0x1000_0A24 | 8                 |
 | TIMER2                                | 0x1000_0A28 | 0x1000_0A38 | 9                 |
-| GLOBAL TIMER MASKED INTERRUPT STATUS  | 0x1000_0AA0 |             |                   |
-| GLOBAL TIMER INTERRUPT CLEAR          | 0x1000_0AA4 |             |                   |
-| GLOBAL TIMER RAW INTERRUPT STATUS     | 0x1000_0AA8 |             |                   |
+| TIMERS MASKED INTERRUPT STATUS        | 0x1000_0AA0 |             |                   |
+| TIMERS INTERRUPT CLEAR                | 0x1000_0AA4 |             |                   |
+| TIMERS RAW INTERRUPT STATUS           | 0x1000_0AA8 |             |                   |
 | I2C2                                  | 0x1000_1000 | 0x1000_1FFF | 22                |
 | GPIOA                                 | 0x1008_0000 |             | 10 - 21           |
 | GPIOB                                 | 0x1018_0000 |             |                   |

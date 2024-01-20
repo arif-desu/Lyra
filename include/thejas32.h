@@ -68,7 +68,7 @@ typedef struct {
 #define TIMER1						((Timer_Reg_t *)(TIMER_BASE + 0x14UL))
 #define TIMER2						((Timer_Reg_t *)(TIMER_BASE + 0x28UL))
 
-#define GLOBAL_TIMER_RAWINT_STATUS	(*(__IO uint32_t *)(TIMER_BASE + 0xA8UL))
+#define TIMERS_RAWINT_STATUS		(*(__IO uint32_t *)(TIMER_BASE + 0xA8UL))
 #define TIMER0_RAWINT_STATUS		(0x1UL)
 #define TIMER1_RAWINT_STATUS		(0x2UL)
 #define TIMER2_RAWINT_STATUS		(0x4UL)
@@ -93,7 +93,7 @@ typedef struct {
 	const uint32_t Padding1;					/* Address Padding*/
 	__IO uint32_t INTEN;						/* Interrupt Enable */
 	const uint32_t Padding2;					/* Address padding */
-	const __IO uint32_t MSKSTATUS;				/* Masked Interrupt Status */
+	const __IO uint32_t INTSTATUS;				/* Interrupt Status */
 } PLIC_Reg_t;
 
 
