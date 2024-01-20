@@ -24,14 +24,16 @@ int main()
         GPIO_SetPin(GPIOB, i);
     }
 
-    Timer_Init(TIMER1, TIMER_MODE_PERIODIC, 50000*500);
+    GPIO_Init(GPIOB, 12, OUT);
+
+    Timer_Init(TIMER1, TIMER_MODE_PERIODIC, 25*1000*500);
     
+    Timer_Start(TIMER1);
 
     while (1) {
         GPIO_TogglePin(GPIOB, RED);
-        Timer_Start(TIMER1);
-        while (GLOBAL_TIMER_RAWINT_STATUS != TIMER1_RAWINT_STATUS);
-        Timer_Stop(TIMER1);        
+        //wait till timer counter decrements to 0
+        while (Timer_GetCount(TIMER1) != 0);  
     }
     
     return 0;
@@ -40,7 +42,13 @@ int main()
 
 
 
+
+
 /*
+
+// This would be a hybrid approach - polling the interrupt status of the timer
+// Note this is the local Interrupt the timer produces in it's own domain, without registering in PLIC
+
 int main()
 {
 
@@ -49,7 +57,9 @@ int main()
         GPIO_SetPin(GPIOB, i);
     }
 
-    Timer_Init_IT(TIMER1, TIMER_MODE_PERIODIC, 100000*500);
+    // Factor=100 for 1us when using timer with interrupt enabled
+    // *1000 for 1ms, *500 for 500ms
+    Timer_Init_IT(TIMER1, TIMER_MODE_PERIODIC, 100*1000*500);
     
     Timer_Start(TIMER1);
 
@@ -57,6 +67,8 @@ int main()
         GPIO_TogglePin(GPIOB, RED);
         
         while (TIMER1->ISR != 0x1);
+
+        // Clear interrupt 
         Timer_ClearInterrupt(TIMER1);
     }
     
@@ -64,3 +76,5 @@ int main()
 }
 
 */
+
+
