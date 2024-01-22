@@ -83,7 +83,7 @@ C_INCLUDES += \
 -I/usr/local/include
 
 
-# compile gcc flags
+# Sompile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -92,6 +92,15 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
 
+ifndef FLASHMODE
+FLASHMODE = 1
+endif
+
+ifeq ($(FLASHMODE), 1)
+FLASHER = aries-flasher
+else
+FLASHER = xmodem-transfer
+endif
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
@@ -101,8 +110,10 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-ifndef LDSCRIPT
-LDSCRIPT = $(VEGA_SDK_PATH)/thejas32mem.ld
+ifeq ($(FLASHMODE), 1)
+LDSCRIPT = $(VEGA_SDK_PATH)/thejas32flash.ld
+else
+LDSCRIPT = $(VEGA_SDK_PATH)/thejas32ram.ld
 endif
 
 # libraries
@@ -159,7 +170,7 @@ clean:
 # clean up
 #######################################
 flash:
-	sudo $(VEGA_SDK_PATH)/aries-flasher /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
+	sudo $(VEGA_SDK_PATH)/$(FLASHER) /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
 
 #######################################
 # dependencies

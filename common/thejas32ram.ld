@@ -169,12 +169,4 @@ SECTIONS
     PROVIDE( _sp = (. + __heap_size + __stack_size));
   } >ram AT>ram :ram
 
-  . = ALIGN(4);
-  /* Remove information from the standard libraries */
-  /DISCARD/ :
-  {
-    libc.a ( * )
-    libm.a ( * )
-    libgcc.a ( * )
-  }
 }

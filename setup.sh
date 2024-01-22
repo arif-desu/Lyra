@@ -61,6 +61,8 @@ mkdir -p "$SDK_PATH"
 cp common/* "$SDK_PATH"
 cp -r "$SETUP_PATH"/drivers "$SDK_PATH"
 cp  "$SETUP_PATH"/tools/aries-flasher "$SDK_PATH"
+cp  "$SETUP_PATH"/tools/xmodem-transfer "$SDK_PATH"
+
 
 case "$DEFAULT_SHELL" in
   "bash")
@@ -116,11 +118,8 @@ fi
 
 
 #  Create minicom config
-printf "${YELLOW}Create minicom configuration? (Y/n):${NORMAL}"
-read -r input 
 
-if [ -z "$input" ] || [ "${input^^}" = "Y" ]; then
-    printf "
+printf "
 # THEJAS32 Minicom Configuration
 pu port             /dev/ttyUSB0
 pu baudrate         115200
@@ -129,7 +128,7 @@ pu parity           N
 pu stopbits         1
 pu rtscts           No
 " > $MINICOM_CONFIG
-fi
+
 
 usermod -aG dialout $SUDO_USER
 
