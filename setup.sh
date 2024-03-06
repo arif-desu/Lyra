@@ -17,11 +17,12 @@ set -e
 HOST_ARCH=$(uname -m)
 SETUP_PATH=$(realpath $PWD)
 HEADER_PATH=/usr/local/include/vega
-SDK_PATH=/opt/vega-sdk
+SDK_PATH=/opt/Lyra
 RISCV_TOOLCHAIN_PATH=/opt/riscv-toolchain
 DEFAULT_SHELL=$(grep "$SUDO_USER" /etc/passwd | awk -F: '{print $7}' | awk -F/ '{print $NF}')
 RC_FILE=/dev/zero
 MINICOM_CONFIG=/etc/minirc.aries
+UDEV_CONFIG=/etc/udev/rules.d/10-aries.rules
 
 # Check if running as root
 if [[ "$EUID" != 0 ]]
@@ -33,14 +34,14 @@ fi
 
 # Install dependencies
 if command -v apt &> /dev/null; then
-    apt-get -y install make tar git minicom
-elif command -v rpm &> /dev/null; then
-    yum install -y make tar git minicom
+    apt-get -y install make tar xz git minicom gcc
+elif command -v yum &> /dev/null; then
+    yum install -y make tar xz git minicom gcc
 elif command -v pacman &> /dev/null; then
-    pacman -Sy make tar git minicom
+    pacman -Sy make tar xz git minicom gcc
 else
     printf "${RED}Unsupported Distro! Please make sure the following packages are installed:${NORMAL}"
-    printf "make\ntar\ngit\nminicom\n"
+    printf "make\ntar\ngit\nxz\nminicom\ngcc\n"
     printf "${YELLOW}Continue? (Y/n) :${NORMAL}"
     read input
     if [ ${input^^} = "N" ]; then
@@ -52,16 +53,16 @@ fi
 
 # Copy header files
 mkdir -p "$HEADER_PATH"
-cp "$SETUP_PATH"/include/* "$HEADER_PATH"
+cp "$SETUP_PATH"/hal/include/* "$HEADER_PATH"
 
 
 # Create directory for SDK
 mkdir -p "$SDK_PATH"
 
-cp common/* "$SDK_PATH"
-cp -r "$SETUP_PATH"/drivers "$SDK_PATH"
-cp  "$SETUP_PATH"/tools/aries-flasher "$SDK_PATH"
-cp  "$SETUP_PATH"/tools/xmodem-transfer "$SDK_PATH"
+cp hal/thejas32/* "$SDK_PATH"
+cp -r "$SETUP_PATH"/hal/drivers "$SDK_PATH"
+gcc "$SETUP_PATH"/tools/xmodem.c -o "$SDK_PATH"/xmodem
+
 
 
 case "$DEFAULT_SHELL" in
@@ -73,7 +74,7 @@ case "$DEFAULT_SHELL" in
     ;;
   *)
     printf "Unsupported shell: %s
-    Manually export the environment variable VEGA_SDK_PATH in your shell rc file
+    Manually export the environment variable VEGA_SDK_PATH in your shell profile
     export VEGA_SDK_PATH=%s",$DEFAULT_SHELL,$VEGA_SDK_PATH
     ;;
 esac
@@ -81,7 +82,7 @@ esac
 echo "export VEGA_SDK_PATH=$SDK_PATH" >> $RC_FILE
 
 
-# Download RISC-V toolchain 
+# Download RISC-V cross-toolchain 
 # WIP, Downloading a fixed release for Linux currently
 printf "\n${YELLOW}Download RISC-V Toolchain? (Y/n) :${NORMAL}"
 read -r input
@@ -129,7 +130,21 @@ pu stopbits         1
 pu rtscts           No
 " > $MINICOM_CONFIG
 
-
+# Add user to dialout group
 usermod -aG dialout $SUDO_USER
 
-echo "${GREEN}Successfully Installed the SDK${NORMAL}"
+# Add udev rules
+
+echo '
+# CP2102 on ARIESv3
+SUBSYSTEM=="usb", SYSFS{idVendor}=="0x10c4", SYSFS{idProduct}=="0xea60", ACTION=="add", GROUP="dialout", MODE="0664"
+' > $UDEV_CONFIG
+
+# Reload rules
+udevadm control --reload-rules && udevadm trigger
+
+echo "${GREEN}
+------------------------------
+Successfully Installed the SDK
+------------------------------
+${NORMAL}"

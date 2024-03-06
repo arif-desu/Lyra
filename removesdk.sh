@@ -1,11 +1,12 @@
 #! /bin/env bash
 
 HEADER_PATH=/usr/local/include/vega
-SDK_PATH=/opt/vega-sdk
+SDK_PATH=/opt/Lyra
 RISCV_TOOLCHAIN_PATH=/opt/riscv-toolchain
 MINIRC=/etc/minirc.aries
 DEFAULT_SHELL=$(grep "$SUDO_USER" /etc/passwd | awk -F: '{print $7}' | awk -F/ '{print $NF}')
 RC_FILE=/dev/zero
+UDEV_CONFIG=/etc/udev/rules.d/10-aries.rules
 
 NORMAL=$(tput sgr0)
 MAGENTA=$(tput setaf 5)
@@ -37,6 +38,10 @@ fi
 
 if [ -f "$MINIRC" ];then
     rm $MINIRC
+fi
+
+if [ -f "$UDEV_CONFIG"];then
+    rm $UDEV_CONFIG
 fi
 
 case "$DEFAULT_SHELL" in
