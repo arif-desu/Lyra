@@ -155,14 +155,20 @@ In both modes the end of timer count is signalled by an interrupt.
 - When masked, the raw interrupt status can be read in `GLOBAL_TIMER_INT_STATUS`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
 - When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit sets to 1 when the interrupt occurs.
 
-#### Prescalar
-There is no clock tree diagram available, so my guess is as good as yours. We consider the CPU bus clock to be 100 MHz as advertised.
+#### Timing
 
-From experimentation with the timer :
+At a 100 $MHz$ clock frequency, the timer ticks at 10 $ns$/tick ( $\frac{1}{100*10^6}$)
 
-- Case 1 : Timer initialized with interrupt masked (`Timer_Init()`), TIMER_LOAD Value = 25-50 for a 1us delay (*1000 for 1ms delay)
-- Case 2 : Timer initialized with interrupt un-masked (`Timer_Init_IT()`), TIMER_LOAD = 100 for a 1us delay and (100*1000) for 1ms delay.
+For example, to  a 1 $\mu s$ time period
 
+
+$10 \ ns \quad \rightarrow \quad 1 \ tick$
+
+So, $1 \ \mu s \quad \rightarrow \frac{10^{-6}}{10 * 10^{-9}} \quad ticks$
+
+$\therefore 1 \mu s \quad \rightarrow \ 100 \quad ticks $
+
+So load a value of **100** for 1 $\mu s$ delay.
 
 
 ---
