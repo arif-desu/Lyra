@@ -4,11 +4,12 @@ ENTRY( _start )
 
 MEMORY
 {
-  ram (wxa!ri) : ORIGIN = 0x202000, LENGTH = 256K
+  ram (wxa!ri) : ORIGIN = 0x200000, LENGTH = 256K
 }
 
-__stack_size = 8K;
-__heap_size = 8K;
+_estack = 0x0023E7FF;
+_stack_size = 0x400;
+_heap_size = 0x200;
   
 PHDRS
 {
@@ -152,21 +153,18 @@ SECTIONS
     *(.gnu.linkonce.b.*)
     *(COMMON)
     . = ALIGN(4);
+    _ebss = .;         /* define a global symbol at bss end */
+    __bss_end__ = _ebss;
   } >ram AT>ram :ram
 
 
-  . = ALIGN(8);
-  PROVIDE( _end = . );
-  PROVIDE( end = . );
-  
   .heap :
   {
-    PROVIDE( _heap_end = (. + __heap_size));
-  } >ram AT>ram :ram
-
-  .stack :
-  {
-    PROVIDE( _sp = (. + __heap_size + __stack_size));
+    . = ALIGN(8);
+    PROVIDE( _end = . );
+    PROVIDE( end = . );
+    PROVIDE( _heap_end = (. + _heap_size));
+    . = . + _stack_size;
   } >ram AT>ram :ram
 
 }

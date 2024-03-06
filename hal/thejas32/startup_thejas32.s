@@ -5,7 +5,7 @@
 _start:
 # Set up stack pointer
 	la  tp, _gp
-	la sp, _sp
+	la sp, _estack
 
 /* Load data section */
 	la a0, _data_lma
@@ -34,6 +34,7 @@ _start:
 	call atexit
 	call __libc_init_array
 
+	/* argc = 0, argv = 0 */
 	li a0, 0
 	li a1, 0
 	call main

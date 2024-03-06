@@ -10,6 +10,43 @@
 
 /* Interrupt Numbers */
 
+
+enum __IRQn {
+    UART0_IRQn = 0,
+    UART1_IRQn,
+    UART2_IRQn,
+    SPI0_IRQn,
+    SPI1_IRQn,
+    I2C0_IRQn,
+    I2C1_IRQn,
+    TIMER0_IRQn,
+    TIMER1_IRQn,
+    TIMER2_IRQn,
+    GPIO0_IRQn,
+    GPIO1_IRQn,
+    GPIO2_IRQn,
+    GPIO3_IRQn,
+    GPIO4_IRQn,
+    GPIO5_IRQn,
+    GPIO6_IRQn,
+    GPIO7_IRQn,
+    GPIO8_IRQn,
+    GPIO9_IRQn,
+    GPIO10_IRQn,
+    GPIO11_IRQn,
+    I2C2_IRQn,
+    SPI2_IRQn,
+    PWMChannel1_IRQn,
+    PWMChannel2_IRQn,
+    PWMChannel3_IRQn,
+    PWMChannel4_IRQn,
+    PWMChannel5_IRQn,
+    PWMChannel6_IRQn,
+    PWMChannel7_IRQn,
+    PWMChannel8_IRQn
+};
+
+#ifdef NOTHING  
 #define UART0_IRQn              0
 #define UART1_IRQn              1
 #define UART2_IRQn              2
@@ -45,25 +82,27 @@
 #define PWMChannel7_IRQn        30
 #define PWMChannel8_IRQn        31
 
-
-/* Global interrupt enable */
+#endif
+/* Global interrupt Enable */
 void __enable_irq(void);
 
-/* Global interrupt disable */
+/* Global interrupt Disable */
 void __disable_irq(void);
 
-
 /* PLIC Interrupt Enable */
-int PLIC_Enable(uint16_t IRQn);
+int PLIC_Enable(enum __IRQn IRQn);
 
 /* PLIC Interrupt Disable */
-int PLIC_Disable(uint16_t IRQn);
+int PLIC_Disable(enum __IRQn IRQn);
 
+/*---------------------------------------------------------------------------------------------------*/
 /* IRQ Handlers for every interrupt */
+/*---------------------------------------------------------------------------------------------------*/
 
+/**/
 
 void UART0_IRQHandler(void);
-void UART1_IRQHandler(void);
+void UART1_IRQHandler(void);    
 void UART2_IRQHandler(void);
 void SPI0_IRQHandler(void);
 void SPI1_IRQHandler(void);

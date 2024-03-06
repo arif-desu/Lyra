@@ -8,10 +8,7 @@ endif
 ######################################
 # building variables
 ######################################
-# debug build?
-ifndef DEBUG
-DEBUG = 0
-endif
+
 # optimization
 ifndef OPT
 OPT = -Og
@@ -36,19 +33,21 @@ $(VEGA_SDK_PATH)/startup_thejas32.s
 #######################################
 # binaries
 #######################################
-PREFIX = riscv-none-elf-
+ifndef CROSS_COMPILE
+CROSS_COMPILE = riscv-none-elf-
+endif
 # The gcc compiler bin path can be either defined in make command via CC_PATH variable (> make CC_PATH=xxx)
 # or it can be added to the PATH environment variable.
 ifdef CC_PATH
-CC = $(CC_PATH)/$(PREFIX)gcc
-AS = $(CC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
-CP = $(CC_PATH)/$(PREFIX)objcopy
-SZ = $(CC_PATH)/$(PREFIX)size
+CC = $(CC_PATH)/$(CROSS_COMPILE)gcc
+AS = $(CC_PATH)/$(CROSS_COMPILE)gcc -x assembler-with-cpp
+CP = $(CC_PATH)/$(CROSS_COMPILE)objcopy
+SZ = $(CC_PATH)/$(CROSS_COMPILE)size
 else
-CC = $(PREFIX)gcc
-AS = $(PREFIX)gcc -x assembler-with-cpp
-CP = $(PREFIX)objcopy
-SZ = $(PREFIX)size
+CC = $(CROSS_COMPILE)gcc
+AS = $(CROSS_COMPILE)gcc -x assembler-with-cpp
+CP = $(CROSS_COMPILE)objcopy
+SZ = $(CROSS_COMPILE)size
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
@@ -82,25 +81,16 @@ AS_INCLUDES +=
 C_INCLUDES += \
 -I/usr/local/include
 
-
-# Sompile gcc flags
+# Compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+ifndef BOOTM
+BOOTM = 1
 endif
 
-ifndef FLASHMODE
-FLASHMODE = 1
-endif
-
-ifeq ($(FLASHMODE), 1)
-FLASHER = aries-flasher
-else
-FLASHER = xmodem-transfer
-endif
+FLASHER = xmodem
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
@@ -110,7 +100,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-ifeq ($(FLASHMODE), 1)
+ifeq ($(BOOTM), 1)
 LDSCRIPT = $(VEGA_SDK_PATH)/thejas32flash.ld
 else
 LDSCRIPT = $(VEGA_SDK_PATH)/thejas32ram.ld
@@ -170,7 +160,7 @@ clean:
 # clean up
 #######################################
 flash:
-	sudo $(VEGA_SDK_PATH)/$(FLASHER) /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
+	$(VEGA_SDK_PATH)/$(FLASHER) /dev/ttyUSB0 $(BUILD_DIR)/$(TARGET).bin
 
 #######################################
 # dependencies

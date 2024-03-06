@@ -17,26 +17,26 @@ int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction)
         return -1;
     }
 
-    if (GPIOA == GPIOx) {
+    if (GPIOx == GPIOA) {
         switch (Direction) {
-            case 0:
-                *GPIOA_DIR &= ~ (1 << Pin);
+            case IN:
+                GPIOA_DIR &= ~ (1 << Pin);
                 break;
-            case 1:
-                *GPIOA_DIR |= 1 << Pin;
+            case OUT:
+                GPIOA_DIR |= 1 << Pin;
                 break;
             default:
                 return -1;
                 break;
         }
     }
-    else if (GPIOB == GPIOx) {
+    else if (GPIOx == GPIOB) {
         switch (Direction) {
-            case 0:
-                *GPIOB_DIR &= ~ (1 << Pin);
+            case IN:
+                GPIOB_DIR &= ~ (1 << Pin);
                 break;
-            case 1:
-                *GPIOB_DIR |= 1 << Pin;
+            case OUT:
+                GPIOB_DIR |= 1 << Pin;
                 break;
             default:
                 return -1;
