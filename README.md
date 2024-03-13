@@ -1,20 +1,25 @@
 # Lyra
 
+![](images/lyrabanner.png)
+
 Lyra is an alternative SDK for CDAC's VEGA series of micro-controllers, encompassing its development, documentation, and resources for a seamless experience. The name is inspired by the constellation hosting one of the brightest night stars - Vega.
+
+The focus of the project is providing a simple UX to program the micro-controller.
 
 ### **DISCLAIMER** 
 The project is NOT affiliated to or endorsed by CDAC (Centre for Developemnet of Advanced Computing). This is an independent project with original works.
 
-It comes with no warranty, programming done with a mix of documentation, reverse-enginerring and experimentation.
+Differences compared to CDAC's official SDK :
+- Works on all leading computer architectures and distributions.
+- Simple programming interface with ST style APIs and interrupt handler routines.
+- Uses the newlib standard C library.
 
 ## Getting Started
 
 #### Supported Platforms
-- Linux
-- Windows 10, 11 (through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install))
-- MacOS (Coming Soon)
-
-_REMARK_ : The SPI flasher tool is only supported on `x86_64` host machines for now.
+This was written primarily with **Linux** in mind, however, you should be able to run with lightweight virtual machine/container environments with ease on other platforms as well :
+- Windows 10, 11 - [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)
+- macOS - [UTM](https://github.com/utmapp/UTM)
 
 ### Set-up
 Just run the setup shell script 
@@ -24,11 +29,11 @@ sudo ./setup.sh
 
 ### Environment Setup
 
-The setup script alreads sets up the `VEGA_SDK_PATH` variable in your default shell profile. So any editor works. See [Template Project](examples/template-project/)
+The setup script alreads sets up the `VEGA_SDK_PATH` variable in your default shell profile. So any editor works. See [Sample Project](examples/Blinky/)
 
 My personal recommendation is Microsoft's [Visual Studio Code](https://code.visualstudio.com).
 
-Install LLVM's clangd extension (Idendtifier: `llvm-vs-code-extensions.vscode-clangd`) for code completion and static code analysis.
+Install LLVM's [clangd](https://clangd.llvm.org) extension (Identifier: `llvm-vs-code-extensions.vscode-clangd`) for code completion and static code analysis.
 
 Windows users utilizing WSL, read [Connect USB Devices](https://learn.microsoft.com/en-us/windows/wsl/connect-usb) to connect the board to the WSL virtual machine.
 
