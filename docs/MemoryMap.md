@@ -13,7 +13,7 @@
 | TIMER0                                | 0x1000_0A00 | 0x1000_0A10 | 7                 |
 | TIMER1                                | 0x1000_0A14 | 0x1000_0A24 | 8                 |
 | TIMER2                                | 0x1000_0A28 | 0x1000_0A38 | 9                 |
-| TIMERS MASKED INTERRUPT STATUS        | 0x1000_0AA0 |             |                   |
+| TIMERS INTERRUPT STATUS               | 0x1000_0AA0 |             |                   |
 | TIMERS INTERRUPT CLEAR                | 0x1000_0AA4 |             |                   |
 | TIMERS RAW INTERRUPT STATUS           | 0x1000_0AA8 |             |                   |
 | I2C2                                  | 0x1000_1000 | 0x1000_1FFF | 22                |
