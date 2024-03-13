@@ -40,7 +40,7 @@ if [ -f "$MINIRC" ];then
     rm $MINIRC
 fi
 
-if [ -f "$UDEV_CONFIG"];then
+if [ -f "$UDEV_CONFIG" ];then
     rm $UDEV_CONFIG
 fi
 

@@ -61,6 +61,7 @@ mkdir -p "$SDK_PATH"
 
 cp hal/thejas32/* "$SDK_PATH"
 cp -r "$SETUP_PATH"/hal/drivers "$SDK_PATH"
+cp -r "$SETUP_PATH"/hal/libs "$SDK_PATH"
 gcc "$SETUP_PATH"/tools/xmodem.c -o "$SDK_PATH"/xmodem
 
 
