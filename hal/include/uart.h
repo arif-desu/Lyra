@@ -7,33 +7,28 @@
 #ifndef _UART_H_
 #define _UART_H_
 
-
 #include <vega/thejas32.h>
 
 #include <stdint.h>
-
-
 
 #define UART_PARITY_NONE		('N')
 #define UART_PARITY_ODD			('O')
 #define UART_PARITY_EVEN		('E')
 
 
-typedef enum {
-	UART_TRXN_SUCCESS = 0,
-	UART_PARITY_ERROR,
-	UART_OVERRUN_ERROR,
-	UART_FRAMING_ERROR
-} UART_Status_t;
+enum __UART_Error_t {
+	UART_ERROR_OVERRUN = 0x20,
+	UART_ERROR_PARITY = 0x21,
+	UART_ERROR_FRAME = 0x22,
+};
 
 
-typedef struct {
+typedef struct __UART_Handle_t {
 	UART_Reg_t *Instance;
 	uint32_t BaudRate;
 	uint32_t WordLength;
 	uint32_t Parity;
 	uint32_t StopBits;
-	uint32_t gState;
 	char *TxBuffer;
 	uint32_t TxXferCount;
 	uint32_t TxState;
@@ -46,30 +41,41 @@ extern UART_Handle_t huart0;
 extern UART_Handle_t huart1;
 extern UART_Handle_t huart2;
 
-/* Initialise the UART controller  */
-void UART_Init(UART_Handle_t *huart);
+/*---------------------------------------------------------------------------------------------------*/
 
-/* Set UART Baud rate */
-void UART_SetBaud(UART_Handle_t *huart, uint32_t baud);
+/* Initialize the UART controller according to the Handle */
+int UART_Init(UART_Handle_t *huart);
 
-/* Set UART frame format */
-void UART_SetFrame(UART_Handle_t *huart, uint8_t wlen, char parity, uint8_t stopbit);
+/*---------------------------------------------------------------------------------------------------*/
 
-/* Blocking call to transmit a string buffer via UART */
-void UART_Transmit(UART_Handle_t *huart, const char *buffer, uint32_t len);
+/* Transfer an amount of data over UART in blocking mode */
+int UART_Transmit(UART_Handle_t *huart, const char *buffer, uint32_t len);
 
-/* Asynchronous call to transmit a string via UART */
-void UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len);
+/*---------------------------------------------------------------------------------------------------*/
 
-/* UART IRQ callback for TX transaction completion */
+/* Transfer an amount of data over UART in non-blocking mode */
+int UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len);
+
+/*---------------------------------------------------------------------------------------------------*/
+
+/* UART TX completed callback */
 void UART_TxCpltCallback(UART_Handle_t *huart);
 
-void UART_Receive(UART_Handle_t *huart, char *buffer, uint32_t len);
+/*---------------------------------------------------------------------------------------------------*/
 
-void UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len);
+/* Receive an amount of data over UART in blocking mode */
+int UART_Receive(UART_Handle_t *huart, char *buffer, uint32_t len);
 
+/*---------------------------------------------------------------------------------------------------*/
+
+/* Receive an amount of data over UART in non-blocking mode */
+int UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len);
+
+/*---------------------------------------------------------------------------------------------------*/
+
+/* UART RX completed callback */
 void UART_RxCpltCallback(UART_Handle_t *huart);
 
-
+/*---------------------------------------------------------------------------------------------------*/
 
 #endif /*_UART_H_*/

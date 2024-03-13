@@ -8,7 +8,8 @@
 #include <vega/thejas32.h>
 #include <vega/uart.h>
 
-#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
 
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -19,13 +20,12 @@ UART_Handle_t huart0 = {
 	.WordLength = 8,
 	.Parity = 'N',
 	.StopBits = 1,
-	.gState = PERIPH_STATE_RDY,
 	.RxBuffer = NULL,
 	.TxBuffer = NULL,
 	.RxXferCount = 0,
 	.TxXferCount = 0,
-	.TxState = PERIPH_STATE_RDY,
-	.RxState = PERIPH_STATE_RDY
+	.TxState = STATE_READY,
+	.RxState = STATE_READY
 };
 
 UART_Handle_t huart1 = {
@@ -34,13 +34,12 @@ UART_Handle_t huart1 = {
 	.WordLength = 8,
 	.Parity = 'N',
 	.StopBits = 1,
-	.gState = PERIPH_STATE_RDY,
 	.RxBuffer = NULL,
 	.TxBuffer = NULL,
 	.RxXferCount = 0,
 	.TxXferCount = 0,
-	.TxState = PERIPH_STATE_RDY,
-	.RxState = PERIPH_STATE_RDY
+	.TxState = STATE_READY,
+	.RxState = STATE_READY
 };
 
 UART_Handle_t huart2 = {
@@ -49,13 +48,12 @@ UART_Handle_t huart2 = {
 	.WordLength = 8,
 	.Parity = 'N',
 	.StopBits = 1,
-	.gState = PERIPH_STATE_RDY,
 	.RxBuffer = NULL,
 	.TxBuffer = NULL,
 	.RxXferCount = 0,
 	.TxXferCount = 0,
-	.TxState = PERIPH_STATE_RDY,
-	.RxState = PERIPH_STATE_RDY
+	.TxState = STATE_READY,
+	.RxState = STATE_READY
 };
 
  
@@ -65,14 +63,21 @@ UART_Handle_t huart2 = {
 Initialises UART controller with attributes suggested by huart
 */
 
-void UART_Init(UART_Handle_t *huart) 
+int UART_Init(UART_Handle_t *huart) 
 {
 	if (huart == NULL) {
-		return;
+		errno = EFAULT;
+		return FAIL;
 	}
 
-	if (huart->gState == PERIPH_STATE_BUSY) {
-		return;
+	if (huart->Instance == NULL) {
+		errno = EFAULT;
+		return FAIL;
+	}
+
+	if (huart->TxState == STATE_BUSY || huart->RxState == STATE_BUSY) {
+		errno = EBUSY;
+		return FAIL;
 	}
 
 	(huart->Instance)->LCR = 0x00000000UL;
@@ -91,7 +96,7 @@ void UART_Init(UART_Handle_t *huart)
 			(huart->Instance)->LCR |= UART_LCR_WL5;
 			break;
 		default:
-			break;
+			return EINVAL;
 	}
 		
 	switch (huart->Parity) {
@@ -111,8 +116,7 @@ void UART_Init(UART_Handle_t *huart)
 			(huart->Instance)->LCR |= UART_LCR_PE_ODD;
 			break;
 		default:
-			//TODO
-			break;
+			return EINVAL;
 	}
 
 	switch (huart->StopBits) {
@@ -123,7 +127,7 @@ void UART_Init(UART_Handle_t *huart)
 			(huart->Instance)->LCR |= UART_LCR_STOP_2;
 			break;
 		default:
-			break;
+			return EINVAL;
 	}
 	
 
@@ -140,149 +144,63 @@ void UART_Init(UART_Handle_t *huart)
 
 	/* Disable all UART interrupts */
 	(huart->Instance)->IER = 0x00UL;
+
+	return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-void UART_SetBaud(UART_Handle_t *huart, uint32_t baud)
+int UART_Transmit(UART_Handle_t *huart, const char *buffer, uint32_t len)
 {
-	if (huart == NULL) {
-		return;
+	if (huart == NULL || buffer == NULL) {
+		errno = EFAULT;
+		return FAIL;
 	}
 
-	while (huart->TxState == PERIPH_STATE_BUSY && huart->RxState == PERIPH_STATE_BUSY);
-
-	huart->gState = PERIPH_STATE_BUSY;
-
-	huart->BaudRate = baud;
-
-	uint32_t divisor = (uint32_t) (SYSTEMCLK / ((huart->BaudRate) * 16));
-
-	/* Enable Latch Access and load MSB and LSB into divisor latch register to set baud rate*/
-
-	(huart->Instance)->LCR |= UART_LCR_DLAB;
-	(huart->Instance)->DLL = divisor & 0xFFFFUL;
-	(huart->Instance)->DLM = (divisor >> 8) & 0xFFFFUL;
-	(huart->Instance)->LCR &= ~(UART_LCR_DLAB);
-
-	huart->gState = PERIPH_STATE_RDY;
-
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-void UART_SetFrame(UART_Handle_t *huart, uint8_t wlen, char parity, uint8_t stopbit)
-{
-	if (huart == NULL) {
-		return;
+	if (huart->Instance == NULL) {
+		errno = EFAULT;
+		return FAIL;
 	}
 
-	while (huart->TxState == PERIPH_STATE_BUSY && huart->RxState == PERIPH_STATE_BUSY);
-
-	huart->gState = PERIPH_STATE_BUSY;
-
-	huart->WordLength = wlen;
-	huart->Parity = parity;
-	huart->StopBits = stopbit;
-
-	switch (huart->WordLength) {
-		case 8:
-			(huart->Instance)->LCR |= UART_LCR_WL8;
-			break;
-		case 7:
-			(huart->Instance)->LCR |= UART_LCR_WL7;
-			break;
-		case 6:
-			(huart->Instance)->LCR |= UART_LCR_WL6;
-			break;
-		case 5:
-			(huart->Instance)->LCR |= UART_LCR_WL5;
-			break;
-		default:
-			break;
-	}
-		
-	switch (huart->Parity) {
-		case 'n':
-		case 'N':
-		case 0:
-			(huart->Instance)->LCR &= ~(0x1UL << UART_LCR_PE_Pos);
-			break;
-		case 'e':
-		case 'E':
-		case 2:
-			(huart->Instance)->LCR |= UART_LCR_PE_EVEN;
-			break;
-		case 'o':
-		case 'O':
-		case 1:
-			(huart->Instance)->LCR |= UART_LCR_PE_ODD;
-			break;
-		default:
-			//TODO
-			break;
+	if (huart->TxState == STATE_BUSY) {
+		errno = EBUSY;
+		return FAIL;
 	}
 
-	switch (huart->StopBits) {
-		case 1:
-			(huart->Instance)->LCR |= UART_LCR_STOP_1;
-			break;
-		case 2:
-			(huart->Instance)->LCR |= UART_LCR_STOP_2;
-			break;
-		default:
-			break;
-	}
-
-	huart->gState = PERIPH_STATE_RDY;
-
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-void UART_PutChar(UART_Handle_t *huart, const char data)
-{
-	if (huart == NULL) {
-		return;
-	}
-
-	/* Wait till Transmit FIFO and shift registers are empty from any previous transactions */
-	while (! ((huart->Instance)->LSR & UART_LSR_TXE));
-
-	(huart->Instance)->TXFIFO = data;
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-void UART_Transmit(UART_Handle_t *huart, const char *buffer, uint32_t len)
-{
-	if (NULL == (huart->Instance) || NULL == buffer || 0 == len) {
-		return;
-	}
-
-	if (huart->TxState == PERIPH_STATE_BUSY) {
-		return;
-	}
-
-	huart->TxState = PERIPH_STATE_BUSY;
+	huart->TxState = STATE_BUSY;
 	// Transmit till specified length or till buffer is empty
 	while (*buffer && len--) {
-		UART_PutChar(huart, *buffer++);
+		// Wait till Tx FIFO is empty
+		while (! ((huart->Instance)->LSR & UART_LSR_TXE));
+
+		(huart->Instance)->TXFIFO = *buffer++;
 	}
-	huart->TxState = PERIPH_STATE_RDY;
+	huart->TxState = STATE_READY;
+
+	return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-void UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len)
+int UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len)
 {
-	if (huart == NULL) {
-		return;
+	if (len == 0) {
+		return OK;
 	}
 
-	if(huart->TxState == PERIPH_STATE_BUSY || huart->gState == PERIPH_STATE_BUSY)
-	{
-		return;
+	if (huart == NULL || buffer == NULL) {
+		errno = EFAULT;
+		return FAIL;
+	}
+
+	if (huart->Instance == NULL) {
+		errno = EFAULT;
+		return FAIL;
+	}
+
+	if (huart->TxState == STATE_BUSY) {
+		errno = EBUSY;
+		return FAIL;
 	}
 
 	int irqn;
@@ -296,63 +214,85 @@ void UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len)
 		irqn = UART2_IRQn;
 	}
 	else {
-		return;
+		errno = ENXIO;
+		return FAIL;
 	}
 
-	// Generate interrupts when Tx Buffer is Empty
 	huart->TxBuffer = (char *)buffer;
+	huart->TxXferCount = len;
 	huart->Instance->IER |= UART_IER_TXE;
 	PLIC->EN |= 0x1 << irqn;
 
-	huart->TxState = PERIPH_STATE_BUSY;
+	huart->TxState = STATE_BUSY;
 
-	return;
+	return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-char UART_GetChar(UART_Handle_t *huart)
+int UART_Receive(UART_Handle_t *huart, char *buffer, uint32_t len)
 {
-	if (huart == NULL) {
-		return -1;
+	if (huart == NULL || buffer == NULL) {
+		errno = EFAULT;
+		return FAIL;
 	}
 
-	//wait till RX FIFO is full
-	while (! (huart->Instance->LSR & UART_LSR_RXFNE));
-
-	return huart->Instance->RXFIFO;
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-void UART_Receive(UART_Handle_t *huart, char *buffer, uint32_t len)
-{
-	if (huart == NULL) {
-		return;
+	if (huart->Instance == NULL) {
+		errno = EFAULT;
+		return FAIL;
 	}
 
-	if (huart->RxState == PERIPH_STATE_BUSY) {
-		return;
+	if (huart->RxState == STATE_BUSY) {
+		errno = EBUSY;
+		return FAIL;
 	}
 
-	huart->RxState = PERIPH_STATE_BUSY;
+	huart->RxState = STATE_BUSY;
 	// Receive till specified length
-	for (int i = 0; i < len && buffer[i] != '\r'; i++) {
-		*buffer++ = UART_GetChar(huart);
+	while (len--) {
+		//wait till RX FIFO is full
+		while (! (huart->Instance->LSR & UART_LSR_RXFNE));
+		*buffer++ = huart->Instance->RXFIFO;
 	}
-	huart->RxState = PERIPH_STATE_RDY;
+	huart->RxState = STATE_READY;
+
+	int err = huart->Instance->LSR & (UART_LSR_PE | UART_LSR_FE | UART_LSR_ORE) & 0xEUL;
+
+	switch (err) {
+		case UART_LSR_ORE:
+			return UART_ERROR_OVERRUN;
+		case UART_LSR_PE:
+			return UART_ERROR_PARITY;
+		case UART_LSR_FE:
+			return UART_ERROR_FRAME;
+		default:
+			break;
+	}
+
+	return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-void UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len)
+int UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len)
 {
-	if (huart == NULL) {
-		return;
+	if (len == 0) {
+		return OK;
+	}
+	
+	if (huart == NULL || buffer == NULL) {
+		errno = EFAULT;
+		return FAIL;
 	}
 
-	if (huart->RxState == PERIPH_STATE_BUSY) {
-		return;
+	if (huart->Instance == NULL) {
+		errno = EFAULT;
+		return FAIL;
+	}
+
+	if (huart->RxState == STATE_BUSY) {
+		errno = EBUSY;
+		return FAIL;
 	}
 
 	int irqn;
@@ -366,7 +306,8 @@ void UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len)
 		irqn = UART2_IRQn;
 	}
 	else {
-		return;
+		errno = ENXIO;
+		return FAIL;
 	}
 
 	huart->RxBuffer = buffer;
@@ -374,10 +315,9 @@ void UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len)
 	huart->Instance->IER |= UART_IER_RXNE;
 	PLIC->EN |= 0x1 << irqn;
 
-	huart->RxState = PERIPH_STATE_BUSY;
+	huart->RxState = STATE_BUSY;
 
-	return;
-	
+	return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -391,7 +331,7 @@ void __UART_RxISR(UART_Handle_t *huart)
 	if (huart->RxXferCount == 0UL) {
 		huart->Instance->IER &= ~(UART_IER_RXNE);
 		UART_RxCpltCallback(huart);
-		huart->gState = PERIPH_STATE_RDY;
+		huart->RxState = STATE_READY;
 		return;
 	}
 }
@@ -405,65 +345,55 @@ void __UART_TxISR(UART_Handle_t *huart)
 	if (huart->TxXferCount == 0UL) {
 		huart->Instance->IER &= ~(UART_IER_TXE);
 		UART_TxCpltCallback(huart);
-		huart->RxState = PERIPH_STATE_RDY;
+		huart->TxState = STATE_READY;
 		return;
 	}
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-void UART0_IRQHandler(void)
+void __UART_ISR(UART_Handle_t *huart)
 {
-	uint32_t id = UART0->IIR & 0xE;
+	if (huart == NULL) {
+		errno = EFAULT;
+		return;
+	}
+
+	if (huart->Instance == NULL) {
+		errno = EFAULT;
+		return;
+	}
+
+	uint32_t id = huart->Instance->IIR & 0xE;
 
 	switch (id) {
 		case UART_IIR_ID_RXNE:
-			__UART_RxISR(&huart0);
+			__UART_RxISR(huart);
 			break;
 
 		case UART_IIR_ID_TXE:
-			__UART_TxISR(&huart0);
+			__UART_TxISR(huart);
 			break;
 
 		default:
 			break;
 	}
+}
+
+
+void UART0_IRQHandler(void)
+{
+	__UART_ISR(&huart0);
 }
 
 void UART1_IRQHandler(void)
 {
-	uint32_t id = UART1->IIR & 0xE;
-
-	switch (id) {
-		case UART_IIR_ID_RXNE:
-			__UART_RxISR(&huart1);
-			break;
-
-		case UART_IIR_ID_TXE:
-			__UART_TxISR(&huart1);
-			break;
-
-		default:
-			break;
-	}
+	__UART_ISR(&huart0);
 }
 
 void UART2_IRQHandler(void)
 {
-	uint32_t id = UART2->IIR & 0xE;
-
-	switch (id) {
-		case UART_IIR_ID_RXNE:
-			__UART_RxISR(&huart2);
-			break;
-
-		case UART_IIR_ID_TXE:
-			__UART_TxISR(&huart2);
-			break;
-
-		default:
-			break;
-	}
+	__UART_ISR(&huart0);
 }
 
 

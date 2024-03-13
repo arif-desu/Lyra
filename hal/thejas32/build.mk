@@ -24,7 +24,9 @@ BUILD_DIR = build
 # source
 ######################################
 # C sources
-C_SOURCES += 
+C_SOURCES += \
+$(wildcard $(VEGA_SDK_PATH)/drivers/*.c) \
+$(wildcard $(VEGA_SDK_PATH)/libs/*.c)
 
 # ASM sources
 ASM_SOURCES +=  \

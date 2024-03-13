@@ -15,8 +15,15 @@
 
 #define __IO    	volatile
 
-#define PERIPH_STATE_RDY	(0x11U)
-#define PERIPH_STATE_BUSY	(0x10U)
+enum ret_t {
+	OK = 0x10,
+	FAIL = 0x11,
+};
+
+enum state_t {
+	STATE_READY = 0xca11ab1e,
+	STATE_BUSY = 0xca11ed
+};
 
 #define SYSTEMCLK		(100000000UL)		/* 100 MHz core clock */
 
@@ -139,12 +146,7 @@ typedef struct
 #define PWM_GCR_IP					(0x1U << PWM_GCR_IP_Pos)
 
 
-
-
-
-
 /*---------------------------------------------------------------------------------------------------*/
-
 
 /*
 PLIC - Platform-Level Interrupt Controller (for External Interrupts)

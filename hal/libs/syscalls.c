@@ -1,7 +1,9 @@
 #include <sys/stat.h>
 #include <errno.h>
-#include <sys/time.h>
 #include <sys/times.h>
+
+#include <vega/uart.h>
+
 
 int _kill(int pid, int sig)
 {
@@ -20,16 +22,19 @@ void _exit (int status)
 __attribute__((weak)) int _read(int file, char *ptr, int len)
 {
 	(void)file;
+  	
+    (void)UART_Receive(&huart0, ptr, len);
 
-
-	return len;
+  	return len;
 }
 
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
-    (void)file;
-    
-    return len;
+   	(void)file;
+  	
+    (void)UART_Transmit(&huart0, ptr, len);
+
+  	return len;
 }
 
 int _close(int file)

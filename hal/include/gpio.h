@@ -6,38 +6,49 @@
 #define GPIO_H
 
 #include <vega/thejas32.h>
+#include <vega/interrupt.h>
+
 #include <stdint.h>
 
 #define GPIOA 			(0U)
 #define GPIOB		    (1U)
 
-#define OUT             (1U)
-#define IN              (0U)
+#define GPIO_OUT        (1U)
+#define GPIO_IN         (0U)
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* Initializes GPIO pin to be used in digital input or output according to Direction */
-int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction);
+/* Initialize GPIO pin to be used in digital input or output according to Direction */
+int GPIO_Init(uint16_t GPIOx, uint16_t pin, uint16_t dir);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* Sets GPIO pin logical High */
-int GPIO_SetPin(uint16_t GPIOx, uint16_t Pin);
+/* Set GPIO pin logical High */
+int GPIO_SetPin(uint16_t GPIOx, uint16_t pin);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* Sets GPIO pin logical Low */
-int GPIO_ResetPin(uint16_t GPIOx, uint16_t Pin);
+/* Set GPIO pin logical Low */
+int GPIO_ResetPin(uint16_t GPIOx, uint16_t pin);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* Toggles GPIO pin from last state */
-int GPIO_TogglePin(uint16_t GPIOx, uint16_t Pin);
+/* Toggle GPIO pin from last state */
+int GPIO_TogglePin(uint16_t GPIOx, uint16_t pin);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* Reads data at GPIO pin */
-int GPIO_ReadPin(uint16_t GPIOx, uint16_t Pin);
+/* Read data at GPIO pin */
+int GPIO_ReadPin(uint16_t GPIOx, uint16_t pin);
+
+/*---------------------------------------------------------------------------------------------------*/
+
+int GPIO_IntEnable(uint16_t pin);
+
+/*---------------------------------------------------------------------------------------------------*/
+
+/* GPIO(A) External interrupt callback  */
+void GPIO_EXTICallback(uint16_t pin);
 
 /*---------------------------------------------------------------------------------------------------*/
 

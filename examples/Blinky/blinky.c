@@ -1,42 +1,28 @@
-#include <vega/gpio.h>
-#include <vega/timer.h>
-
-#define RED             8
-#define GREEN           6
-#define BLUE            7
-
-#define RED_SET         GPIO_ResetPin(GPIOB, RED)
-#define RED_RST         GPIO_SetPin(GPIOB,RED)
-
-#define GREEN_SET       GPIO_ResetPin(GPIOB, GREEN)
-#define GREEN_RST       GPIO_SetPin(GPIOB, GREEN)
-
-#define BLUE_SET        GPIO_ResetPin(GPIOB, BLUE)
-#define BLUE_RST        GPIO_SetPin(GPIOB, BLUE)
+#include <vega/hal.h>
+#include <vega/aries.h>
 
 int main()
 {
 
     for (int i = 6; i < 9; i++) {
-        GPIO_Init(GPIOB, i, OUT);
+        GPIO_Init(GPIOB, i, GPIO_OUT);
         GPIO_SetPin(GPIOB, i);
     }
 
-
     while (1) {
-        RED_SET;
+        RGB_RED_SET;
         delayms(500);
-        RED_RST;
-        delayms(500);
-
-        GREEN_SET;
-        delayms(500);
-        GREEN_RST;
+        RGB_RED_RST;
         delayms(500);
 
-        BLUE_SET;
+        RGB_GREEN_SET;
         delayms(500);
-        BLUE_RST;
+        RGB_GREEN_RST;
+        delayms(500);
+
+        RGB_BLUE_SET;
+        delayms(500);
+        RGB_BLUE_RST;
         delayms(500); 
     }
     

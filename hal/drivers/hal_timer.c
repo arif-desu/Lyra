@@ -6,45 +6,52 @@
 #include <vega/thejas32.h>
 #include <vega/timer.h>
 #include <vega/interrupt.h>
-#include <stdint.h>
-#include <stdlib.h>
+#include <stddef.h>
+#include <errno.h>
 
-Timer_Handle_t htimer0 = {
+
+TIMER_Handle_t htimer0 = {
     .Instance = TIMER0,
-    .LoadCount = 0,
+    .LoadCount = 50000000,
     .Mode = TIMER_MODE_PERIODIC,
-    .State = PERIPH_STATE_RDY
+    .State = STATE_READY
 };
 
-Timer_Handle_t htimer1 = {
+TIMER_Handle_t htimer1 = {
     .Instance = TIMER1,
-    .LoadCount = 0,
+    .LoadCount = 50000000,
     .Mode = TIMER_MODE_PERIODIC,
-    .State = PERIPH_STATE_RDY
+    .State = STATE_READY
 };
 
-Timer_Handle_t htimer2 = {
+TIMER_Handle_t htimer2 = {
     .Instance = TIMER2,
-    .LoadCount = 0,
+    .LoadCount = 50000000,
     .Mode = TIMER_MODE_PERIODIC,
-    .State = PERIPH_STATE_RDY
+    .State = STATE_READY
 };
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int Timer_Init(Timer_Handle_t *htimer, uint32_t val)
+int TIMER_Init(TIMER_Handle_t *htimer)
 {
     if (htimer == NULL) {
-        return -1;
+        errno = EFAULT;
+        return FAIL;
     }
 
-    if (htimer->State == PERIPH_STATE_BUSY) {
-        return PERIPH_STATE_BUSY;
+    if (htimer->Instance == NULL) {
+        errno = EFAULT;
+        return FAIL;
+    }
+
+    if (htimer->State == STATE_BUSY) {
+        return STATE_BUSY;
     }
     
     htimer->Instance->CTRL = 0;
 
-    htimer->Instance->LOAD = val;
+    htimer->Instance->LOAD = htimer->LoadCount;
     
     switch (htimer->Mode) {
         case TIMER_MODE_FREERUN:
@@ -54,42 +61,60 @@ int Timer_Init(Timer_Handle_t *htimer, uint32_t val)
             htimer->Instance->CTRL |= (0x1UL << TIMER_CTRL_MODE_Pos);
             break;
         default:
-            return -1;
+            errno = EINVAL;
+            return EINVAL;
     }
 
-    return 0;
+    return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-void Timer_Start(Timer_Handle_t *htimer)
+int TIMER_Start(TIMER_Handle_t *htimer)
 {
     if (htimer == NULL) {
-        return;
+        errno = EFAULT;
+        return FAIL;
     }
 
-    if (htimer->State == PERIPH_STATE_BUSY) {
-        return;
+    if (htimer->Instance == NULL) {
+        errno = EFAULT;
+        return FAIL;
+    }
+
+    if (htimer->State == STATE_BUSY) {
+        errno = EBUSY;
+        return FAIL;
     }
 
     htimer->Instance->CTRL |= TIMER_CTRL_EN;
-    htimer->State = PERIPH_STATE_BUSY;
+    htimer->State = STATE_BUSY;
+
+    return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
 
-void Timer_Start_IT(Timer_Handle_t *htimer)
+int TIMER_Start_IT(TIMER_Handle_t *htimer)
 {
     if (htimer == NULL) {
-        return;
+        errno = EFAULT;
+        return FAIL;
     }
 
-    if (htimer->State == PERIPH_STATE_BUSY) {
-        return;
+    if (htimer->Instance == NULL) {
+        errno = EFAULT;
+        return FAIL;
+    }
+
+    if (htimer->State == STATE_BUSY) {
+        errno = EBUSY;
+        return FAIL;
     }
 
     int irqn;
+    
     if (htimer->Instance == TIMER0) {
        irqn = TIMER0_IRQn; 
     }
@@ -100,71 +125,91 @@ void Timer_Start_IT(Timer_Handle_t *htimer)
         irqn = TIMER2_IRQn;
     }
     else {
-        return;
+        errno = ENXIO;
+        return FAIL;
     }
 
     PLIC->EN |= 0x1UL << irqn;
 
     htimer->Instance->CTRL |= TIMER_CTRL_EN;
-    htimer->State = PERIPH_STATE_BUSY;
+    htimer->State = STATE_BUSY;
+    
+    return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-void Timer_Stop(Timer_Handle_t *htimer)
+int TIMER_Stop(TIMER_Handle_t *htimer)
 {
+    if (htimer == NULL) {
+        errno = EFAULT;
+        return FAIL;
+    }
+
     if (htimer->Instance == NULL) {
+        errno = EFAULT;
+        return FAIL;
+    }
+
+    htimer->Instance->CTRL &= ~(TIMER_CTRL_EN);
+    htimer->State = STATE_READY;
+    return OK;
+}
+
+/*---------------------------------------------------------------------------------------------------*/
+
+int TIMER_GetCount(TIMER_Handle_t *htimer)
+{
+    if (htimer == NULL) {
+        errno = EFAULT;
+        return FAIL;
+    }
+
+    if (htimer->Instance == NULL) {
+        errno = EFAULT;
+        return FAIL;
+    }
+
+    return htimer->Instance->CURVAL;
+}
+
+/*---------------------------------------------------------------------------------------------------*/
+
+
+__attribute__((weak))void TIMER_ElapsedCallback(TIMER_Handle_t *htimer)
+{
+    return;
+}
+
+void __Timer_ISR(TIMER_Handle_t *htimer)
+{
+    if (htimer == NULL) {
+        errno = EFAULT;
         return;
     }
-    else {
-        htimer->Instance->CTRL &= ~(TIMER_CTRL_EN);
-        htimer->State = PERIPH_STATE_RDY;
-    } 
-}
 
-/*---------------------------------------------------------------------------------------------------*/
-
-int Timer_GetCount(Timer_Handle_t *htimer)
-{
     if (htimer->Instance == NULL) {
-        return -1;
+        errno = EFAULT;
+        return;
     }
-    else {
-        return htimer->Instance->CURVAL;
-    }
+
+    TIMER_ElapsedCallback(htimer);
+
+    // Clear timer interrupt by reading the INTCLR register
+    __attribute__((unused)) int clr = htimer->Instance->INTCLR;
 }
 
-/*---------------------------------------------------------------------------------------------------*/
-
-int Timer_ClearInt(Timer_Handle_t *htimer)
+void TIMER0_IRQHandler(void)
 {
-    if (htimer->Instance == NULL) {
-        return -1;
-    }
-    else {
-        // Perform read on Interrupt Clear register to clear interrupt bit
-        return htimer->Instance->INTCLR;
-    }
+    __Timer_ISR(&htimer0);
 }
 
-/*---------------------------------------------------------------------------------------------------*/
-
-__attribute__((weak)) void delayus(uint32_t time)
+void TIMER1_IRQHandler(void)
 {
-    TIMER0->CTRL = 0;
-    TIMER0->LOAD = time * 100;
-    TIMER0->CTRL |= TIMER_CTRL_MODE_1 | TIMER_CTRL_EN;
-    while (! (TIMER0->ISR & 0x1UL));
+    __Timer_ISR(&htimer1);
 }
 
-/*---------------------------------------------------------------------------------------------------*/
-
-__attribute__((weak)) void delayms(uint32_t time)
+void TIMER2_IRQHandler(void)
 {
-    TIMER0->CTRL = 0;
-    TIMER0->LOAD = time * 100000;
-    TIMER0->CTRL |= TIMER_CTRL_MODE_1 | TIMER_CTRL_EN;
-    while (! (TIMER0->ISR & 0x1UL));
+    __Timer_ISR(&htimer2);
 }
-
-/*---------------------------------------------------------------------------------------------------*/

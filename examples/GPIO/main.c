@@ -1,47 +1,37 @@
-#include <vega/gpio.h>
+/* This example assumes ARIESv2 board being used */
 
-#define RED             8
-#define GREEN           6
-#define BLUE            7
-
-#define RED_SET         GPIO_ResetPin(GPIOB, RED)
-#define RED_RST         GPIO_SetPin(GPIOB,RED)
-
-#define GREEN_SET       GPIO_ResetPin(GPIOB, GREEN)
-#define GREEN_RST       GPIO_SetPin(GPIOB, GREEN)
-
-#define BLUE_SET        GPIO_ResetPin(GPIOB, BLUE)
-#define BLUE_RST        GPIO_SetPin(GPIOB, BLUE)
+#include <vega/hal.h>
+#include <vega/aries.h>
 
 int main()
 {
 
     for (int i = 6; i < 9; i++) {
-        GPIO_Init(GPIOB, i, OUT);
+        GPIO_Init(GPIOB, i, GPIO_OUT);
         GPIO_SetPin(GPIOB, i);
     }
 
-    GPIO_Init(GPIOB, 3, IN);
-    GPIO_Init(GPIOB, 2, IN);
+    GPIO_Init(GPIOB, 3, GPIO_IN);
+    GPIO_Init(GPIOB, 2, GPIO_IN);
     
     while (1) {
         // Check Button 0 is pressed
-        if (GPIO_ReadPin(GPIOB, 3) == 0) {
-            RED_RST;
-            BLUE_RST;
-            GREEN_SET;
+        if (GPIO_ReadPin(GPIOB, BTN0) == 0) {
+            RGB_RED_RST;
+            RGB_BLUE_RST;
+            RGB_GREEN_SET;
         }
 
         // Check Button 1 is pressed
-        else if (GPIO_ReadPin(GPIOB, 2) == 0) {
-            RED_RST;
-            GREEN_RST;
-            BLUE_SET;
+        else if (GPIO_ReadPin(GPIOB, BTN1) == 0) {
+            RGB_RED_RST;
+            RGB_GREEN_RST;
+            RGB_BLUE_SET;
         }
         else {
-            GREEN_RST;
-            BLUE_RST;
-            RED_SET;
+            RGB_GREEN_RST;
+            RGB_BLUE_RST;
+            RGB_RED_SET;
         }
     }
 

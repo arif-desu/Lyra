@@ -3,62 +3,67 @@
  *  @author Arif B <arif.dev@pm.me>
  */
 
+#include <vega/interrupt.h>
 #include <vega/thejas32.h>
 #include <vega/gpio.h>
 
 #include <stdint.h>
-#include <stdlib.h>
+#include <stddef.h>
+#include <errno.h>
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int GPIO_Init(uint16_t GPIOx, uint16_t Pin, uint16_t Direction)
+int GPIO_Init(uint16_t GPIOx, uint16_t pin, uint16_t dir)
 {
-    if (Pin < 0 || Pin > 15) {
-        return -1;
+    if (pin < 0 || pin > 15) {
+        errno = EINVAL;
+        return FAIL;
     }
 
     if (GPIOx == GPIOA) {
-        switch (Direction) {
-            case IN:
-                GPIOA_DIR &= ~ (1 << Pin);
+        switch (dir) {
+            case GPIO_IN:
+                GPIOA_DIR &= ~ (1 << pin);
                 break;
-            case OUT:
-                GPIOA_DIR |= 1 << Pin;
+            case GPIO_OUT:
+                GPIOA_DIR |= 1 << pin;
                 break;
             default:
-                return -1;
-                break;
+                errno = EINVAL;
+                return FAIL;
         }
     }
     else if (GPIOx == GPIOB) {
-        switch (Direction) {
-            case IN:
-                GPIOB_DIR &= ~ (1 << Pin);
+        switch (dir) {
+            case GPIO_IN:
+                GPIOB_DIR &= ~ (1 << pin);
                 break;
-            case OUT:
-                GPIOB_DIR |= 1 << Pin;
+            case GPIO_OUT:
+                GPIOB_DIR |= 1 << pin;
                 break;
             default:
-                return -1;
-                break;
+                errno = EINVAL;
+                return FAIL;  
         }
     }
     else {
-        return -1;
+        errno = EINVAL;
+        return FAIL;
     }
 
-    return 0;   
+    return OK;   
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int GPIO_SetPin(uint16_t GPIOx, const uint16_t Pin)
+int GPIO_SetPin(uint16_t GPIOx, const uint16_t pin)
 {
-    if (Pin < 0 || Pin > 15) {
-        return -1;
+    if (pin < 0 || pin > 15) {
+        errno = EINVAL;
+        return FAIL;
     }
 
-    unsigned long PADDR = (1 << Pin) << 2;
+    unsigned long PADDR = (1 << pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
     
     switch (GPIOx) {
@@ -69,23 +74,25 @@ int GPIO_SetPin(uint16_t GPIOx, const uint16_t Pin)
             GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
-            return -1;
+            errno = EINVAL;
+            return FAIL;
     }
 
-    *GPIO_DATA = 1 << Pin;
+    *GPIO_DATA = 1 << pin;
 
-    return 0;
+    return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int GPIO_ResetPin(uint16_t GPIOx, const uint16_t Pin)
+int GPIO_ResetPin(uint16_t GPIOx, const uint16_t pin)
 {
-    if (Pin < 0 || Pin > 15) {
-        return -1;
+    if (pin < 0 || pin > 15) {
+        errno = EINVAL;
+        return FAIL;
     }
 
-    unsigned long PADDR = (1 << Pin) << 2;
+    unsigned long PADDR = (1 << pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
 
     switch (GPIOx) {
@@ -96,23 +103,25 @@ int GPIO_ResetPin(uint16_t GPIOx, const uint16_t Pin)
             GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
-            return -1;
+            errno = EINVAL;
+            return FAIL;
     }    
 
-    *GPIO_DATA = 0 << Pin;
+    *GPIO_DATA = 0 << pin;
 
-    return 0;
+    return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int GPIO_TogglePin(uint16_t GPIOx, const uint16_t Pin)
+int GPIO_TogglePin(uint16_t GPIOx, uint16_t pin)
 {
-    if (Pin < 0 || Pin > 15) {
-        return -1;
+    if (pin < 0 || pin > 15) {
+        errno = EINVAL;
+        return FAIL;
     }
 
-    unsigned long PADDR = (1 << Pin) << 2;
+    unsigned long PADDR = (1 << pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
 
     switch (GPIOx) {
@@ -123,23 +132,25 @@ int GPIO_TogglePin(uint16_t GPIOx, const uint16_t Pin)
             GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
-            return -1;
+            errno = EINVAL;
+            return FAIL;
     }    
     
-    *GPIO_DATA ^= 1 << Pin; 
+    *GPIO_DATA ^= 1 << pin; 
     
-    return 0;
+    return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int GPIO_ReadPin(uint16_t GPIOx, const uint16_t Pin) 
+int GPIO_ReadPin(uint16_t GPIOx, uint16_t pin) 
 {
-    if (Pin < 0 || Pin > 15) {
-        return -1;
+    if (pin < 0 || pin > 15) {
+        errno = EINVAL;
+        return FAIL;
     }
     
-    unsigned long PADDR = (1 << Pin) << 2;
+    unsigned long PADDR = (1 << pin) << 2;
     volatile unsigned long *GPIO_DATA = NULL;
     uint16_t data;
     
@@ -151,7 +162,8 @@ int GPIO_ReadPin(uint16_t GPIOx, const uint16_t Pin)
             GPIO_DATA = (unsigned long *) (GPIOB_BASE | PADDR) ;
             break;
         default:
-            return -1;
+            errno = EINVAL;
+            return FAIL;
     } 
 
     data = *GPIO_DATA;
@@ -166,5 +178,82 @@ int GPIO_ReadPin(uint16_t GPIOx, const uint16_t Pin)
 
 /*---------------------------------------------------------------------------------------------------*/
 
+int GPIO_IntEnable(uint16_t pin) 
+{
+    if (pin > 11) {
+        errno = EINVAL;
+        return FAIL;
+    }
+    else {
+        PLIC->EN |= 0x1U << (pin+10);
+    }
+    return OK;
+}
 
+/*---------------------------------------------------------------------------------------------------*/
+
+__attribute__((weak)) void GPIO_EXTICallback(uint16_t pin)
+{
+    return;
+}
+
+void GPIO0_IRQHandler(void)
+{
+    GPIO_EXTICallback(0);
+}
+
+void GPIO1_IRQHandler(void)
+{
+    GPIO_EXTICallback(1);
+}
+
+void GPIO2_IRQHandler(void)
+{
+    GPIO_EXTICallback(2);
+}
+
+void GPIO3_IRQHandler(void)
+{
+    GPIO_EXTICallback(3);
+}
+
+void GPIO4_IRQHandler(void)
+{
+    GPIO_EXTICallback(4);
+}
+
+void GPIO5_IRQHandler(void)
+{
+    GPIO_EXTICallback(5);
+}
+
+void GPIO6_IRQHandler(void)
+{
+    GPIO_EXTICallback(6);
+}
+
+void GPIO7_IRQHandler(void)
+{
+    GPIO_EXTICallback(7);
+}
+
+void GPIO8_IRQHandler(void)
+{
+    GPIO_EXTICallback(8);
+}
+
+void GPIO9_IRQHandler(void)
+{
+    GPIO_EXTICallback(9);
+}
+
+void GPIO10_IRQHandler(void)
+{
+    GPIO_EXTICallback(10);
+}
+
+void GPIO11_IRQHandler(void)
+{
+    GPIO_EXTICallback(11);
+}
 

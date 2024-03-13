@@ -1,10 +1,8 @@
 # Specify executable name
-TARGET = uart
+TARGET = uart_poll
 
 # C source files
-C_SOURCES = \
-uart.c \
-$(VEGA_SDK_PATH)/drivers/hal_uart.c 
+C_SOURCES = uart.c
 
 
 include $(VEGA_SDK_PATH)/build.mk

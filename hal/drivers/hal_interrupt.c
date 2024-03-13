@@ -4,6 +4,7 @@
  */
 
 #include <stdint.h>
+#include <errno.h>
 #include <vega/csr.h>
 #include <vega/interrupt.h>
 #include <vega/thejas32.h>
@@ -72,7 +73,8 @@ void __disable_irq(void)
 int PLIC_Enable(enum __IRQn IRQn)
 {
     if (IRQn > 31) {
-        return -1;
+        errno = EINVAL;
+        return FAIL;
     }
     else {
         PLIC->EN |= 0x1UL << IRQn;
@@ -85,12 +87,13 @@ int PLIC_Enable(enum __IRQn IRQn)
 int PLIC_Disable(enum __IRQn IRQn)
 {
     if (IRQn > 31) {
-        return -1;
+        errno = EINVAL;
+        return FAIL;
     }
     else {
         PLIC->EN &= ~(0x1UL << IRQn);
     }
-    return 0;
+    return OK;
 }
 
 /*---------------------------------------------------------------------------------------------------*/

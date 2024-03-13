@@ -1,9 +1,7 @@
-#include <vega/uart.h>
+#include <vega/hal.h>
 
 #include <stdio.h>
 #include <string.h>
-
-extern UART_Handle_t huart0;
 
 int main()
 {
@@ -13,12 +11,11 @@ int main()
     UART_Init(&huart0);
 
     while (1) {
-        rxdata = UART_GetChar(&huart0);
+        UART_Receive(&huart0, (char *)&rxdata, 1);
         
         sprintf(buf, "Received : %c \r\n", rxdata);
 
         UART_Transmit(&huart0, buf, strlen(buf));
-        
     }
     
     return 0;

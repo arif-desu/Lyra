@@ -1,10 +1,6 @@
-#include <vega/timer.h>
-#include <vega/uart.h>
+#include <vega/hal.h>
 
 #include <stdio.h>
-
-extern UART_Handle_t huart0;
-
 
 int _write(int file, char* ptr, int len) {
     (void)file;
@@ -14,7 +10,6 @@ int _write(int file, char* ptr, int len) {
 
 int main()
 {
-
     UART_Init(&huart0);
 
     while (1) {
