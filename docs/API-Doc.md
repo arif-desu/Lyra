@@ -9,17 +9,17 @@ GPIO is controlled with the following API calls:
 
 ```c 
 int GPIO_Init( uint16_t GPIOx, 
-               uint16_t Pin, 
-               uint16_t Direction)
+               uint16_t pin, 
+               uint16_t dir)
 ```
 
-- **Description** : Initializes a GPIO port pin to be general purpose Output or Input.
+- **Description** : Initializes a GPIO port pin to general purpose Output or Input.
 
 - **Parameters** : 
 
     - `GPIOx` - GPIO controller to be initialized. Accepts 0, 1 or GPIOA, GPIOB
-    - `Pin` - Pin to be configured
-    - `Direction` - OUT / IN
+    - `pin` - Pin to be configured
+    - `dir` - GPIO_OUT GPIO_IN
 
 - **Return** : 
 
@@ -40,7 +40,7 @@ int GPIO_SetPin( uint16_t GPIOx,
 - **Parameters** : 
 
     - `GPIOx` - GPIO controller. Accepts 0, 1 or GPIOA, GPIOB
-    - `Pin` - Pin to be written
+    - `pin` - Pin to be written
 
 - **Return** : 
 
@@ -59,7 +59,7 @@ int GPIO_ResetPin( uint16_t GPIOx,
 - **Parameters** : 
 
     - `GPIOx` - GPIO controller. Accepts 0, 1 or GPIOA, GPIOB
-    - `Pin` - Pin to be written
+    - `pin` - Pin to be written
 
 - **Return** : 
 
@@ -78,7 +78,7 @@ int GPIO_TogglePin( uint16_t GPIOx,
 - **Parameters** : 
 
     - `GPIOx` - GPIO controller to be initialized. Accepts 0, 1 or GPIOA, GPIOB
-    - `Pin` - Pin to be toggled
+    - `pin` - Pin to be toggled
 
 - **Return** : 
 
@@ -98,7 +98,7 @@ int GPIO_ReadPin( uint16_t GPIOx,
 - **Parameters** : 
 
     - `GPIOx` - GPIO controller. Accepts 0, 1 or GPIOA, GPIOB
-    - `Pin` - Pin to be toggled
+    - `pin` - Pin to be toggled
 
 - **Return** : 
 
