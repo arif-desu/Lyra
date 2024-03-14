@@ -1,5 +1,16 @@
 # Lyra API Documentation
 
+Most procedures return either of the following enumerations :
+- `OK` - enumerated as 0x10, returned when operation is successful. 
+- `FAIL` - enumerated as 0x11, returned when operation fails.
+
+When `FAIL` is returned, you can debug by printing `errno` which is set one of the following :
+- `EINVAL` - Invalid argument
+- `EFAULT` - Bad address, typically encountered when handle or handle instance points to `NULL`.
+- `ENXIO` - No such device or address, typically encountered when controller handle points to invalid controller.
+
+Moreover, some procedures may return additional values, which are discussed later.
+
 
 ## GPIO
 
@@ -17,14 +28,14 @@ int GPIO_Init( uint16_t GPIOx,
 
 - **Parameters** : 
 
-    - `GPIOx` - GPIO controller to be initialized. Accepts 0, 1 or GPIOA, GPIOB
+    - `GPIOx` - GPIO instance to be initialized. Accepts 0, 1 or `GPIOA`, `GPIOB`
     - `pin` - Pin to be configured
-    - `dir` - GPIO_OUT GPIO_IN
+    - `dir` - `GPIO_OUT`(1) `GPIO_IN`(0)
 
 - **Return** : 
 
-    - Returns `0` on successful configuration. 
-    - Returns `-1` on invalid argument input 
+    - `OK` on successful configuration. 
+    - `FAIL` on invalid argument input .
 
 ---
 
@@ -32,176 +43,186 @@ int GPIO_Init( uint16_t GPIOx,
 
 ```c 
 int GPIO_SetPin( uint16_t GPIOx, 
-                 uint16_t Pin)
+                 uint16_t pin)
 ```
 
 - **Description** : Writes a digital HIGH to GPIO Pin configured as Output.
 
 - **Parameters** : 
 
-    - `GPIOx` - GPIO controller. Accepts 0, 1 or GPIOA, GPIOB
-    - `pin` - Pin to be written
+    - `GPIOx` - GPIO instance. Accepts 0, 1 or `GPIOA`, `GPIOB`.
+    - `pin` - Pin to be written to.
 
 - **Return** : 
 
-    - Returns `0` on successful configuration. 
-    - Returns `-1` on invalid argument input 
+    - `OK` on successful configuration. 
+    - `FAIL` on invalid argument input 
 
 ---
 
 ```c 
 int GPIO_ResetPin( uint16_t GPIOx, 
-                   uint16_t Pin)
+                   uint16_t pin)
 ```
 
 - **Description** : Writes a digital LOW to GPIO Pin configured as Output.
 
 - **Parameters** : 
 
-    - `GPIOx` - GPIO controller. Accepts 0, 1 or GPIOA, GPIOB
-    - `pin` - Pin to be written
+    - `GPIOx` - GPIO instance. Accepts 0, 1 or `GPIOA`, `GPIOB`.
+    - `pin` - Pin to be written to.
 
 - **Return** : 
 
-    - Returns `0` on successful configuration. 
-    - Returns `-1` on invalid argument input 
+    - `OK` on successful configuration. 
+    - `FAIL` on invalid argument input 
 ---
 
 #### GPIO_TogglePin()
 ```c 
 int GPIO_TogglePin( uint16_t GPIOx, 
-                    uint16_t Pin)
+                    uint16_t pin)
 ```
 
-- **Description** : Toggles the specified Pin (configured as Output) from last configured output state.
+- **Description** : Toggles the specified pin (configured as Output) from last configured output state.
 
 - **Parameters** : 
 
-    - `GPIOx` - GPIO controller to be initialized. Accepts 0, 1 or GPIOA, GPIOB
-    - `pin` - Pin to be toggled
+    - `GPIOx` - GPIO instance. Accepts 0, 1 or `GPIOA`, `GPIOB`
+    - `pin` - Pin to be toggled.
 
 - **Return** : 
 
-    - Returns `0` on successful configuration. 
-    - Returns `-1` on invalid argument input 
+    - Returns `OK` on successful configuration. 
+    - Returns `FAIL` on invalid argument input 
 
 ---
 
 #### GPIO_ReadPin()
 ```c 
 int GPIO_ReadPin( uint16_t GPIOx, 
-                  uint16_t Pin)
+                  uint16_t pin)
 ```
 
 - **Description** : Reads the data for pin configured as digital Input.
 
 - **Parameters** : 
 
-    - `GPIOx` - GPIO controller. Accepts 0, 1 or GPIOA, GPIOB
-    - `pin` - Pin to be toggled
+    - `GPIOx` - GPIO instance. Accepts 0, 1 or `GPIOA`, `GPIOB`.
+    - `pin` - pin to be toggled
 
 - **Return** : 
 
-    - Returns `1` for a a logical HIGH.
-     - Returns `0` for a logical LOW.
-    - Returns `-1` on invalid argument input 
+    - **1** for a a logical HIGH.
+    - **0** for a logical LOW.
+    - `FAIL` on invalid argument input.
 
+---
+
+#### GPIO_IntEnable()
+```c 
+int GPIO_IntEnable( uint16_t pin )
+```
+
+- **Description** : Enables interrupt on PLIC for specified pin. Only takes pin as input since only GPIOA Pin 0 - 11 support external interrupts.
+
+- **Parameters** : 
+
+    - `pin` - Enables interrupt for specified GPIOA pin.
+
+- **Return** : 
+
+    - `OK` on successful configuration.
+    - `FAIL` on invalid argument input.
 ---
 
 ## Timer
 
-#### Timer_Init()
+Timer APIs take at least the Timer Handle. There are pre-defined handles in HAL library, namely `htimer0`, `htimer1` and `htimer2` which are associated with TIMER0, TIMER1 and TIMER2 respectively.
+
+All timer handles are initialized with :
+- `LoadCount` = 100000000 for 1 sec delays.
+- `Mode` = `TIMER_MODE_PERIODIC` for periodic mode.
+
+#### TIMER_Init()
 ```c
-int Timer_Init( Timer_Reg_t *TIMERx, 
-                uint16_t Mode, 
-                uint32_t Val )
+int TIMER_Init( TIMER_Handle_t *htimer )
 ```
 
-- **Description** : Initialises Timer module with interrupt masked.
+- **Description** : Initialises Timer module according to attributes specified by `htimer`.
 
 - **Parameters** : 
 
-    - `TIMERx` - Timer Module to be initialized. Accepts TIMER0, TIMER1, TIMER2
-    - `Mode` - Timer mode. Free-running (`TIMER_MODE_FREERUN`) or Periodic (`TIMER_MODE_PERIODIC`)
-    - `Val` - Value to be loaded into timer counter
+    - `htimer` - Timer Handle.
 
 - **Return** : 
 
-    - Returns `0` for configuration
-    - Returns `-1` if TIMERx is passed as NULL
+    - `OK` for successful configuration.
+    - `FAIL` for failure. 
+
+    Failure could be encountered by either timer already in running state or bad address being passed as argument. Check errno for debugging.
 
 ---
 
-#### Timer_Init_IT()
+#### TIMER_Start()
 ```c
-int Timer_Init( Timer_Reg_t *TIMERx, 
-                uint16_t Mode, 
-                uint32_t Val )
+void TIMER_Start( TIMER_Handle_t *htimer)
 ```
-
-The same as `Timer_Init()`, only initialises timer with interrupt un-masked.
-
----
-
-#### Timer_Start()
-```c
-void Timer_Start(Timer_Reg_t *TIMERx)
-```
-- **Description** : Starts the timer counter for specified Timer.
+- **Description** : Starts the timer counter for specified Timer with interrupt masked.
 
 - **Parameters** : 
 
-    - `TIMERx` - Timer module to start.
-
-- **Return** : void return type
-
----
-
-#### Timer_Stop()
-```c
-void Timer_Stop(Timer_Reg_t *TIMERx)
-```
-- **Description** : Stops the timer counter for specified Timer.
-
-- **Parameters** : 
-
-    - `TIMERx` - Timer module to stop.
-
-- **Return** : void return type
-
----
-
-#### Timer_GetCount()
-
-```c
-int Timer_GetCount(Timer_Reg_t *TIMERx)
-```
-
-- **Description** : Reads the timer counter value for specified Timer.
-
-- **Parameters** : 
-
-    - `TIMERx` - Timer module to stop.
+    - `htimer` - Timer Handle.
 
 - **Return** : 
-    - Returns counter value
-    - Returns `-1` for invalid argument input
+    - `OK` for successful configuration.
+    - `FAIL` for failure.
 
+    Failure could be encountered by either timer already in running state or bad address being passed as argument. Check errno for debugging.
 ---
 
-#### Timer_ClearInterrupt()
+#### TIMER_Start_IT()
 ```c
-int Timer_ClearInterrupt(Timer_Reg_t *TIMERx)
+void TIMER_Start_IT( TIMER_Handle_t *htimer)
 ```
-- **Description** : Reads the interrupt status bit for specified Timer to mark End-Of-Interrupt. This should be called everytime the interrupt occurs - either through polling the `TIMERx->ISR` or in ISR Routine.
+
+Similar to `TIMER_Start()` but starts the timer with interrupt enabled.
+
+Interrupt Service Routine is 
+---
+
+#### TIMER_Stop()
+```c
+void TIMER_Stop(TIMER_Handle_t *htimer)
+```
+- **Description** : Stops the timer counter.
 
 - **Parameters** : 
 
-    - `TIMERx` - Timer module.
+    - `htimer` - Timer Handle.
+
+- **Return** : 
+    - `OK` for successful configuration.
+    - `FAIL` for failure.
+
+---
+
+#### TIMER_GetCount()
+
+```c
+int TIMER_GetCount(TIMER_Handle_t *htimer)
+```
+
+- **Description** : Reads the timer counter value.
+
+- **Parameters** : 
+
+    - `htimer` - Timer Handle
 
 - **Return** : 
     - Returns counter value
-    - Returns `-1` for invalid argument input
+    - Returns `FAIL` for invalid argument or bad address.
+
 
 ---
 
@@ -242,8 +263,8 @@ int PLIC_Enable(uint16_t IRQn)
 
 - **Return** : 
 
-    - Returns `0` on success
-    - Returns `-1` for invalid argument.
+    - Returns `OK` on success
+    - Returns `FAIL` for invalid argument.
 
 ---
 
@@ -258,7 +279,7 @@ int PLIC_Enable(uint16_t IRQn)
 
 - **Return** : 
 
-    - Returns `0` on success
-    - Returns `-1` for invalid argument.
+    - Returns `OK` on success
+    - Returns `FAIL` for invalid argument.
 
 ---
