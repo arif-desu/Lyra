@@ -34,7 +34,7 @@ fi
 
 # Install dependencies
 if command -v apt &> /dev/null; then
-    apt-get -y install make tar xz git minicom gcc
+    apt-get -y install make tar xz-utils git minicom gcc
 elif command -v yum &> /dev/null; then
     yum install -y make tar xz git minicom gcc
 elif command -v pacman &> /dev/null; then
@@ -85,7 +85,8 @@ echo "export VEGA_SDK_PATH=$SDK_PATH" >> $RC_FILE
 
 # Download RISC-V cross-toolchain 
 # WIP, Downloading a fixed release for Linux currently
-printf "\n${YELLOW}Download RISC-V Toolchain? (Y/n) :${NORMAL}"
+printf "\nIf this is your first time running the script, you might want to download pre-compiled RISC-V toolchain\n"
+printf "\n${YELLOW}Download RISC-V Toolchain? ([Y]/n) :${NORMAL}"
 read -r input
 
 if [ -z "$input" ] || [ "${input^^}" = "Y" ]; then
@@ -139,6 +140,10 @@ usermod -aG dialout $SUDO_USER
 echo '
 # CP2102 on ARIESv3
 SUBSYSTEM=="usb", SYSFS{idVendor}=="0x10c4", SYSFS{idProduct}=="0xea60", ACTION=="add", GROUP="dialout", MODE="0664"
+
+# FT230X on ARIESv2
+SUBSYSTEM=="usb", SYSFS{idVendor}=="0404", SYSFS{idProduct} =="6015", ACTION=="add", GROUP="dialout", MODE="0664"
+
 ' > $UDEV_CONFIG
 
 # Reload rules
