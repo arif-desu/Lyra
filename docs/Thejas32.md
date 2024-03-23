@@ -49,13 +49,7 @@ To upload code in this mode, press `Ctrl+A S` to send file over serial, select x
 
 ---
 
-- When **BOOTSEL=1**, the bootloader copies the code from external SPI flash memory to the SRAM. Flashing to this flash memory is achieved using `xmodemflasher` tool provided by CDAC.
-
-The program `xmodemflasher` takes 2 arguments :
-
-`xmodemflasher <device> <executable_binary>`
-
-Example : `xmodemflasher /dev/ttyUSB0 build/app.bin`
+- When **BOOTSEL=1**, the bootloader copies the code from external SPI flash memory to the SRAM. 
 
 Here's the console log when BOOTSEL=1 : 
 
@@ -122,7 +116,7 @@ Now write to address appropriate bit as per pin:
 
 Here's a figure explaining the operation on a similar 8-bit implementation (ET1031 is a 16-bit implementation) :
 
-![Image.png](https://res.craft.do/user/full/3372ef50-799d-12ab-837f-d73801b8cbf5/doc/061B987D-3FA8-42F2-BFA2-2ECEB04F74BE/3209E924-C79F-48BE-B26B-9E9BD74227A7_2/hH8PsSCTw7rwsinyryjaLHft2fTTxshhD2ATXJSxLyIz/Image.png)
+
 
 *u = unchanged
 
@@ -151,15 +145,16 @@ An initial counter value can be loaded by writing to the `TIMER_LOAD` Register a
 The counter decrements each cycle and when the count reaches zero, `0x00000000`, an interrupt is generated and the counter reloads with the value in the TIMER_LOAD Register. The counter starts to decrement again and this whole cycle repeats for as long as the counter is enabled.
 
 
-In both modes the end of timer count is signalled by an interrupt. 
-- When masked, the raw interrupt status can be read in `GLOBAL_TIMER_INT_STATUS`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
+In both modes the end of timer count is signalled by setting a bit in the timer's local interrupt register.
+
+- When masked, the raw interrupt status can be read in `TIMERS_RAWISR`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
 - When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit sets to 1 when the interrupt occurs.
 
-#### Timing
+#### Timer
 
 At a 100 $MHz$ clock frequency, the timer ticks at 10 $ns$/tick ( $\frac{1}{100*10^6}$)
 
-For example, to  a 1 $\mu s$ time period
+For example, to achieve a perioud of $1 \enspace \mu s$ 
 
 
 $10 \ ns \quad \rightarrow \quad 1 \ tick$
@@ -168,17 +163,17 @@ So, $1 \ \mu s \quad \rightarrow \frac{10^{-6}}{10 * 10^{-9}} \quad ticks$
 
 $\therefore 1 \mu s \quad \rightarrow \ 100 \quad ticks $
 
-So load a value of **100** for 1 $\mu s$ delay.
+So load a value of **100** for 1 $\mu s$ time period.
 
 
 ---
 # Interrupts and Exceptions
 
-These are RISC-V definitions : 
+As defined by RISC-V ISA manual: 
 
-- **Exception** : Used to refer to an unusual condition occurring at runtime (ie synchronous in nature) associated with an instruction in the current core. Eg : Illegal instruction
+- **Exception** : Used to refer to an unusual condition occurring at runtime (ie _synchronous_ in nature) associated with an instruction in the current core. Eg : Illegal instruction, Division-by-zero.
 
-- **Interrupt** : Refers to an external asynchronous event that may cause a hart to experience unexpected transfer of control. Typically done by peripherals.
+- **Interrupt** : Refers to an external _asynchronous_ event that may cause a hart to experience unexpected transfer of control. Typically triggered by peripherals.
 
 The transfer of control in both cases is called a **Trap**.
 
@@ -188,10 +183,3 @@ Interrupts can only be **enabled/ disabled on a global basis** and not individua
 
 ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, i.e. before having saved the `MEPC` and `MSTATUS` register, will cause those register to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
 
-
-Example for timer interrupt :
-- Initialize timer in interrupt mode `Timer_Init_IT()`.
-- Enable global interrupts `__enable_irq()`
-- Enable timer interrupt in PLIC (Platform-level Interrupt Controller) with `PLIC_Enable()`, which takes the interrupt number as argument.
-- Define the IRQHandler routine. Make sure to clear the timer interrupt with `Timer_ClearInterrupt()` before return.
-- Start Timer
