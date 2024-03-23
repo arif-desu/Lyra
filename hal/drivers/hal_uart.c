@@ -171,7 +171,7 @@ int UART_Transmit(UART_Handle_t *huart, const char *buffer, uint32_t len)
 	// Transmit till specified length or till buffer is empty
 	while (*buffer && len--) {
 		// Wait till Tx FIFO is empty
-		while (! ((huart->Instance)->LSR & UART_LSR_TXE));
+		while (! (huart->Instance->LSR & UART_LSR_TXFE));
 
 		(huart->Instance)->TXFIFO = *buffer++;
 	}
@@ -256,18 +256,6 @@ int UART_Receive(UART_Handle_t *huart, char *buffer, uint32_t len)
 	}
 	huart->RxState = STATE_READY;
 
-	int err = huart->Instance->LSR & (UART_LSR_PE | UART_LSR_FE | UART_LSR_ORE) & 0xEUL;
-
-	switch (err) {
-		case UART_LSR_ORE:
-			return UART_ERROR_OVERRUN;
-		case UART_LSR_PE:
-			return UART_ERROR_PARITY;
-		case UART_LSR_FE:
-			return UART_ERROR_FRAME;
-		default:
-			break;
-	}
 
 	return OK;
 }
