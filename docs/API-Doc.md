@@ -9,8 +9,7 @@ When `FAIL` is returned, you can debug by printing `errno` which is set one of t
 - `EFAULT` - Bad address, typically encountered when handle or handle instance points to `NULL`.
 - `ENXIO` - No such device or address, typically encountered when controller handle points to invalid controller.
 
-Moreover, some procedures may return additional values, which are discussed later.
-
+---
 
 ## GPIO
 
@@ -121,14 +120,15 @@ int GPIO_ReadPin( uint16_t GPIOx,
 
 #### GPIO_IntEnable()
 ```c 
-int GPIO_IntEnable( uint16_t pin )
+int GPIO_IT_Enable( uint16_t pin )
 ```
 
-- **Description** : Enables interrupt on PLIC for specified pin. Only takes pin as input since only GPIOA Pin 0 - 11 support external interrupts.
+- **Description** : Enables interrupt on PLIC for specified pin on GPIOA.
+Remark - Only GPIOA Pin 0 - 11 support external interrupts.
 
 - **Parameters** : 
 
-    - `pin` - Enables interrupt for specified GPIOA pin.
+    - `pin` - GPIOA pin
 
 - **Return** : 
 
@@ -136,12 +136,31 @@ int GPIO_IntEnable( uint16_t pin )
     - `FAIL` on invalid argument input.
 ---
 
+#### GPIO_IT_Disable()
+```c 
+int GPIO_IT_Disable( uint16_t pin )
+```
+
+- **Description** : Disable interrupt on PLIC for specified pin on GPIOA.
+Remark - Only GPIOA Pin 0 - 11 support external interrupts.
+
+- **Parameters** : 
+
+    - `pin` - GPIOA pin
+
+- **Return** : 
+
+    - `OK` on successful configuration.
+    - `FAIL` on invalid argument input.
+
+---
+
 ## Timer
 
 Timer APIs take at least the Timer Handle. There are pre-defined handles in HAL library, namely `htimer0`, `htimer1` and `htimer2` which are associated with TIMER0, TIMER1 and TIMER2 respectively.
 
 All timer handles are initialized with :
-- `LoadCount` = 100000000 for 1 sec delays.
+- `LoadCount` = 50000000 for 500 msec delays.
 - `Mode` = `TIMER_MODE_PERIODIC` for periodic mode.
 
 #### TIMER_Init()
@@ -226,6 +245,33 @@ int TIMER_GetCount(TIMER_Handle_t *htimer)
 
 ---
 
+## Auxiliary functions
+
+## Delay
+
+#### delayms()
+
+```c
+void delayms(uint32_t time)
+```
+
+- **Description** : Produces a blocking delay in milli-seconds.
+
+WARNING : The default implementation uses TIMER0. When invoked, this function will disable timer0 interrupt, stop the timer and load a different value in Load Count register. 
+
+The implementations are declared with weak attribute, so you may choose to override this behavior by re-defining the function.
+
+- **Parameters** : 
+
+    - `time` - time in milliseconds
+
+- **Return** : 
+    - Returns counter value
+    - Returns `FAIL` for invalid argument or bad address.
+
+
+---
+
 ## Interrupts
 
 #### __enable_irq()
@@ -254,7 +300,7 @@ void __disable_irq(void)
 
 #### PLIC_Enable()
 ```c
-int PLIC_Enable(uint16_t IRQn)
+int PLIC_Enable(uint8_t IRQn)
 ```
 - **Description** : Registers an interrupt in the PLIC (Platform-level Interrupt Controller) specified by the interrupt number
 
@@ -268,14 +314,14 @@ int PLIC_Enable(uint16_t IRQn)
 
 ---
 
-#### PLIC_Enable()
+#### PLIC_Disable()
 ```c
-int PLIC_Enable(uint16_t IRQn)
+int PLIC_Disable(uint8_t IRQn)
 ```
 - **Description** : De-registers an interrupt in the PLIC (Platform-level Interrupt Controller) specified by the interrupt number.
 
 - **Parameters** : 
-    - `IRQn` : Interrupt Request Number. See memory map or interrupt.h. These are also defined by macros in interrupt.h
+    - `IRQn` : Interrupt Request Number. See memory map. These are also defined by macros in interrupt.h
 
 - **Return** : 
 
