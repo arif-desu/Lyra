@@ -11,7 +11,7 @@
 
 extern unsigned long InterruptHandler;
 
-/* Platform-Level Interrupt Controller - Interrupt Service Routine table */
+/* Platform-Level Interrupt Controller - vector table */
 
 static void (* plic_vtable[32])(void) = {
     UART0_IRQHandler,
@@ -70,28 +70,28 @@ void __disable_irq(void)
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int PLIC_Enable(enum __IRQn IRQn)
+int PLIC_Enable(uint8_t IRQn)
 {
     if (IRQn > 31) {
         errno = EINVAL;
         return FAIL;
     }
     else {
-        PLIC->EN |= 0x1UL << IRQn;
+        PLIC->IE |= 0x1UL << IRQn;
     }
     return 0;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int PLIC_Disable(enum __IRQn IRQn)
+int PLIC_Disable(uint8_t IRQn)
 {
     if (IRQn > 31) {
         errno = EINVAL;
         return FAIL;
     }
     else {
-        PLIC->EN &= ~(0x1UL << IRQn);
+        PLIC->IE &= ~(0x1UL << IRQn);
     }
     return OK;
 }
