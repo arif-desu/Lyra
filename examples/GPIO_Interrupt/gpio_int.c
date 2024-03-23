@@ -1,3 +1,4 @@
+#include <vega/gpio.h>
 #include <vega/hal.h>
 #include <vega/aries.h>
 
@@ -11,7 +12,7 @@ int main()
 
     GPIO_Init(GPIOA, 3, GPIO_IN);
 
-    GPIO_IntEnable(3);
+    GPIO_IT_Enable(3);
 
     while (1) {
         //infinite loop

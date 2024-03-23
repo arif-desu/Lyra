@@ -1,5 +1,5 @@
 # Specify executable name
-TARGET = vega
+TARGET = vegabin
 
 # C source files
 C_SOURCES = uartprint.c 
