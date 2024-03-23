@@ -58,7 +58,7 @@ int UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* UART TX completed callback */
+/* UART Tx complete callback function */
 void UART_TxCpltCallback(UART_Handle_t *huart);
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -73,7 +73,7 @@ int UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* UART RX completed callback */
+/* UART Rx complete callback function*/
 void UART_RxCpltCallback(UART_Handle_t *huart);
 
 /*---------------------------------------------------------------------------------------------------*/

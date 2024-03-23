@@ -220,8 +220,8 @@ int UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len)
 
 	huart->TxBuffer = (char *)buffer;
 	huart->TxXferCount = len;
-	huart->Instance->IER |= UART_IER_TXE;
-	PLIC->EN |= 0x1 << irqn;
+	huart->Instance->IER |= UART_IER_TXFE;
+	PLIC->IE |= 0x1 << irqn;
 
 	huart->TxState = STATE_BUSY;
 
@@ -251,7 +251,7 @@ int UART_Receive(UART_Handle_t *huart, char *buffer, uint32_t len)
 	// Receive till specified length
 	while (len--) {
 		//wait till RX FIFO is full
-		while (! (huart->Instance->LSR & UART_LSR_RXFNE));
+		while (! (huart->Instance->LSR & UART_LSR_RXFF));
 		*buffer++ = huart->Instance->RXFIFO;
 	}
 	huart->RxState = STATE_READY;
@@ -312,8 +312,8 @@ int UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len)
 
 	huart->RxBuffer = buffer;
 	huart->RxXferCount = len;
-	huart->Instance->IER |= UART_IER_RXNE;
-	PLIC->EN |= 0x1 << irqn;
+	huart->Instance->IER |= UART_IER_RXFF;
+	PLIC->IE |= 0x1 << irqn;
 
 	huart->RxState = STATE_BUSY;
 
@@ -329,7 +329,7 @@ void __UART_RxISR(UART_Handle_t *huart)
 	huart->RxXferCount--;
 
 	if (huart->RxXferCount == 0UL) {
-		huart->Instance->IER &= ~(UART_IER_RXNE);
+		huart->Instance->IER &= ~(UART_IER_RXFF);
 		UART_RxCpltCallback(huart);
 		huart->RxState = STATE_READY;
 		return;
@@ -343,7 +343,7 @@ void __UART_TxISR(UART_Handle_t *huart)
 	huart->TxXferCount--;
 
 	if (huart->TxXferCount == 0UL) {
-		huart->Instance->IER &= ~(UART_IER_TXE);
+		huart->Instance->IER &= ~(UART_IER_TXFE);
 		UART_TxCpltCallback(huart);
 		huart->TxState = STATE_READY;
 		return;
@@ -367,11 +367,11 @@ void __UART_ISR(UART_Handle_t *huart)
 	uint32_t id = huart->Instance->IIR & 0xE;
 
 	switch (id) {
-		case UART_IIR_ID_RXNE:
+		case UART_IIR_ID_RXFF:
 			__UART_RxISR(huart);
 			break;
 
-		case UART_IIR_ID_TXE:
+		case UART_IIR_ID_TXFE:
 			__UART_TxISR(huart);
 			break;
 
@@ -388,12 +388,12 @@ void UART0_IRQHandler(void)
 
 void UART1_IRQHandler(void)
 {
-	__UART_ISR(&huart0);
+	__UART_ISR(&huart1);
 }
 
 void UART2_IRQHandler(void)
 {
-	__UART_ISR(&huart0);
+	__UART_ISR(&huart2);
 }
 
 
