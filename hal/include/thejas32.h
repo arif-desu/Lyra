@@ -59,9 +59,9 @@ enum state_t {
 
 typedef struct {
 	__IO uint32_t LOAD;						/* Load Count Register */
-	const __IO uint32_t CURVAL;				/* Current Value Register */
+	const __IO uint32_t CVAL;				/* Current Value Register */
 	__IO uint32_t CTRL;						/* Control Register */
-	const __IO uint32_t INTCLR;				/* Interrupt Clear Register */
+	const __IO uint32_t ICLR;				/* Interrupt Clear Register */
 	const __IO uint32_t ISR;				/* Interrupt Status Register */
 } Timer_Reg_t;
 
@@ -89,10 +89,10 @@ typedef struct {
 
 typedef struct
 {
-	__IO uint32_t CTRL;
-	const __IO uint32_t SR;
-	__IO uint32_t PERIOD;
-	__IO uint32_t DUTY;
+	__IO uint32_t CTRL;					/* PWM Control register */
+	const __IO uint32_t SR;				/* PWM Status register */
+	__IO uint32_t PERIOD;				/* PWM Period register */
+	__IO uint32_t DUTY;					/* PWM Duty cycle register */
 } PWM_Reg_t;
 
 
@@ -155,7 +155,7 @@ PLIC - Platform-Level Interrupt Controller (for External Interrupts)
 typedef struct {
 	const __IO uint32_t RAWISR;				/* Raw Interrupt Status */
 	const uint32_t Padding1;				/* Address Padding*/
-	__IO uint32_t EN;						/* Interrupt Enable */
+	__IO uint32_t IE;						/* Interrupt Enable */
 	const uint32_t Padding2;				/* Address padding */
 	const __IO uint32_t ISR;				/* Interrupt Status */
 } PLIC_Reg_t;
@@ -193,10 +193,10 @@ typedef struct {
 
 /* UART Interrupt Enable Register (IER) bits */
 
-#define UART_IER_RXNE_Pos				(0U)			
-#define UART_IER_RXNE					(0x1U << UART_IER_RXNE_Pos)			/* Receiver Buffer(FIFO) Not Empty interrupt */
-#define UART_IER_TXE_Pos				(1U)			
-#define UART_IER_TXE					(0x1U << UART_IER_TXE_Pos)			/* Transmitter Buffer(FIFO) Empty Interrupt */
+#define UART_IER_RXFF_Pos				(0U)			
+#define UART_IER_RXFF					(0x1U << UART_IER_RXFF_Pos)			/* Receive FIFO Full interrupt */
+#define UART_IER_TXFE_Pos				(1U)			
+#define UART_IER_TXFE					(0x1U << UART_IER_TXFE_Pos)			/* Transmit FIFO Empty Interrupt */
 #define UART_IER_RXLS_Pos				(2U)				
 #define UART_IER_RXLS					(0x1U << UART_IER_RXLS_Pos)			/* Receiver Line Status Interrupt */
 
@@ -206,10 +206,10 @@ typedef struct {
 #define UART_IIR_NPEND_Pos				(0U)	
 #define UART_IIR_NPEND					(0x1U << UART_IIR_PEND_Pos)	/* Interrupt NOT Pending */
 
-#define UART_IIR_ID_Pos					(1U)	/* Interrupt ID [2:0] */
+#define UART_IIR_ID_Pos					(1U)						/* Interrupt ID [2:0] */
 #define UART_IIR_ID_RXLS				(0x3U << UART_IIR_ID_Pos)	/* RX Line Status Interrupt ID */
-#define UART_IIR_ID_RXNE				(0x2U << UART_IIR_ID_Pos)	/* RX Buffer Not Empty Interrupt ID */
-#define UART_IIR_ID_TXE					(0x1U << UART_IIR_ID_Pos)	/* TX Buffer Empty Interrupt ID */
+#define UART_IIR_ID_RXFF				(0x2U << UART_IIR_ID_Pos)	/* RX FIFO Full Interrupt ID */
+#define UART_IIR_ID_TXFE				(0x1U << UART_IIR_ID_Pos)	/* TX FIFO Empty Interrupt ID */
 
 
 /* UART Line Control Register */
@@ -250,8 +250,8 @@ typedef struct {
 
 /* UART Line Status Register */
 
-#define UART_LSR_RXFNE_Pos				(0U)	/* Data Ready bit */
-#define UART_LSR_RXFNE					(1U << UART_LSR_RXFNE_Pos) /* Data Ready bit */
+#define UART_LSR_RXFF_Pos				(0U)	/* RX FIFO Full */
+#define UART_LSR_RXFF					(1U << UART_LSR_RXFF_Pos)  
 
 #define UART_LSR_ORE_Pos				(1U)	/* Overrun Error bit */
 #define UART_LSR_ORE					(0x1 << UART_LSR_ORE_Pos)	
@@ -265,7 +265,7 @@ typedef struct {
 #define UART_LSR_BRKINT_Pos				(4U)	/* Break Interrupt bit */
 #define UART_LSR_BRKINT					(0X1U << UART_LSR_BRKINT_Pos)
 
-#define UART_LSR_TXFE_Pos				(5U)	/* Transmitter (FIFO) Buffer Empty */
+#define UART_LSR_TXFE_Pos				(5U)	/* Transmitter FIFO Empty */
 #define UART_LSR_TXFE					(1UL << UART_LSR_TXFE_Pos )
 
 #define UART_LSR_TXE_Pos				(6U)	/* Transmitter FIFO and shift-register Empty */
