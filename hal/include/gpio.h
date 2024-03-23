@@ -43,11 +43,17 @@ int GPIO_ReadPin(uint16_t GPIOx, uint16_t pin);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int GPIO_IntEnable(uint16_t pin);
+/* Enable interrupt on GPIO(A) pin */
+int GPIO_IT_Enable(uint16_t pin);
 
 /*---------------------------------------------------------------------------------------------------*/
 
-/* GPIO(A) External interrupt callback  */
+/* Disable interrupt on GPIO(A) pin */
+int GPIO_IT_Disable(uint16_t pin);
+
+/*---------------------------------------------------------------------------------------------------*/
+
+/* GPIO(A) External interrupt callback function */
 void GPIO_EXTICallback(uint16_t pin);
 
 /*---------------------------------------------------------------------------------------------------*/
