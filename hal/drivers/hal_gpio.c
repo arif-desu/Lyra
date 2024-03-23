@@ -15,7 +15,7 @@
 
 int GPIO_Init(uint16_t GPIOx, uint16_t pin, uint16_t dir)
 {
-    if (pin < 0 || pin > 15) {
+    if (pin > 15) {
         errno = EINVAL;
         return FAIL;
     }
@@ -58,7 +58,7 @@ int GPIO_Init(uint16_t GPIOx, uint16_t pin, uint16_t dir)
 
 int GPIO_SetPin(uint16_t GPIOx, const uint16_t pin)
 {
-    if (pin < 0 || pin > 15) {
+    if (pin > 15) {
         errno = EINVAL;
         return FAIL;
     }
@@ -87,7 +87,7 @@ int GPIO_SetPin(uint16_t GPIOx, const uint16_t pin)
 
 int GPIO_ResetPin(uint16_t GPIOx, const uint16_t pin)
 {
-    if (pin < 0 || pin > 15) {
+    if (pin > 15) {
         errno = EINVAL;
         return FAIL;
     }
@@ -116,7 +116,7 @@ int GPIO_ResetPin(uint16_t GPIOx, const uint16_t pin)
 
 int GPIO_TogglePin(uint16_t GPIOx, uint16_t pin)
 {
-    if (pin < 0 || pin > 15) {
+    if (pin > 15) {
         errno = EINVAL;
         return FAIL;
     }
@@ -145,7 +145,7 @@ int GPIO_TogglePin(uint16_t GPIOx, uint16_t pin)
 
 int GPIO_ReadPin(uint16_t GPIOx, uint16_t pin) 
 {
-    if (pin < 0 || pin > 15) {
+    if (pin > 15) {
         errno = EINVAL;
         return FAIL;
     }
@@ -178,18 +178,31 @@ int GPIO_ReadPin(uint16_t GPIOx, uint16_t pin)
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int GPIO_IntEnable(uint16_t pin) 
+int GPIO_IT_Enable(uint16_t pin) 
 {
     if (pin > 11) {
         errno = EINVAL;
         return FAIL;
     }
     else {
-        PLIC->EN |= 0x1U << (pin+10);
+        PLIC->IE |= 0x1U << (pin+10);
     }
     return OK;
 }
 
+/*---------------------------------------------------------------------------------------------------*/
+
+int GPIO_IT_Disable(uint16_t pin) 
+{
+    if (pin > 11) {
+        errno = EINVAL;
+        return FAIL;
+    }
+    else {
+        PLIC->IE &= ~(0x1U << (pin+10));
+    }
+    return OK;
+}
 /*---------------------------------------------------------------------------------------------------*/
 
 __attribute__((weak)) void GPIO_EXTICallback(uint16_t pin)
