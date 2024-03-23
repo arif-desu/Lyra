@@ -129,7 +129,7 @@ int TIMER_Start_IT(TIMER_Handle_t *htimer)
         return FAIL;
     }
 
-    PLIC->EN |= 0x1UL << irqn;
+    PLIC->IE |= 0x1UL << irqn;
 
     htimer->Instance->CTRL |= TIMER_CTRL_EN;
     htimer->State = STATE_BUSY;
@@ -170,7 +170,7 @@ int TIMER_GetCount(TIMER_Handle_t *htimer)
         return FAIL;
     }
 
-    return htimer->Instance->CURVAL;
+    return htimer->Instance->CVAL;
 }
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -196,7 +196,7 @@ void __Timer_ISR(TIMER_Handle_t *htimer)
     TIMER_ElapsedCallback(htimer);
 
     // Clear timer interrupt by reading the INTCLR register
-    __attribute__((unused)) int clr = htimer->Instance->INTCLR;
+    __attribute__((unused)) int clr = htimer->Instance->ICLR;
 }
 
 void TIMER0_IRQHandler(void)
