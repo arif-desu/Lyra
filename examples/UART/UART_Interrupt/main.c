@@ -21,6 +21,6 @@ int main()
 void UART_RxCpltCallback(UART_Handle_t *huart)
 {
     char msg[100];
-    sprintf(buf, "\r\nReceived : %s",buf);
+    sprintf(msg, "\r\nReceived : %s",buf);
     UART_Transmit(&huart0, msg, strlen(msg));
 }
