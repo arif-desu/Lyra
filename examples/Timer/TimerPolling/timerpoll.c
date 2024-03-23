@@ -1,5 +1,14 @@
+/* Polling the timer counter gives inaccurate and inconsistent
+results since the timer counter count-down and CPU execution share
+the same tick rate. Therefore it is NOT recommended to use the timer
+in this manner. */
+
 #include <vega/hal.h>
 #include <vega/aries.h>
+#include <vega/timer.h>
+
+#define MICROS(time)        (time * 100)
+#define MILLIS(time)        (time * 100000)  
 
 int main()
 {
@@ -10,6 +19,8 @@ int main()
     }
 
     GPIO_Init(GPIOB, RGB_RED , GPIO_OUT);
+
+    htimer0.LoadCount = MILLIS(500);
 
     TIMER_Init(&htimer0);
     
