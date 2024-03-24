@@ -7,8 +7,6 @@ char buf[80] = {0};
 
 int main()
 {
-    __enable_irq();
-
     UART_Init(&huart0);
     
     while (1) {

@@ -1,12 +1,8 @@
-#include <vega/gpio.h>
 #include <vega/hal.h>
 #include <vega/aries.h>
 
-
 int main()
 {
-    __enable_irq();
-
     GPIO_Init(GPIOB, RGB_RED, GPIO_OUT);
     RGB_RED_RST;
 
@@ -27,5 +23,4 @@ void GPIO_EXTICallback(uint16_t pin)
         delayms(150);
         GPIO_TogglePin(GPIOB, RGB_RED);
     }
-
 }

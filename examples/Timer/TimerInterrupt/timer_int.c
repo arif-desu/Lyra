@@ -6,8 +6,6 @@
 
 int main()
 {
-    __enable_irq();
-    
     for (int i = 6; i < 9; i++) {
         GPIO_Init(GPIOB, i, GPIO_OUT);
         GPIO_SetPin(GPIOB, i);
@@ -36,7 +34,6 @@ int main()
 
 void TIMER_ElapsedCallback(TIMER_Handle_t *htimer)
 {
-
     if (htimer == &htimer0) {
         GPIO_TogglePin(GPIOB, RGB_RED);
     }
