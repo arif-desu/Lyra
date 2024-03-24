@@ -3,11 +3,13 @@
 
 int main()
 {
+    GPIO_Init(GPIOB, RGB_RED, GPIO_OUT);
+    GPIO_Init(GPIOB, RGB_GREEN, GPIO_OUT);
+    GPIO_Init(GPIOB, RGB_BLUE, GPIO_OUT);
 
-    for (int i = 6; i < 9; i++) {
-        GPIO_Init(GPIOB, i, GPIO_OUT);
-        GPIO_SetPin(GPIOB, i);
-    }
+    RGB_RED_RST;
+    RGB_GREEN_RST;
+    RGB_BLUE_RST;
 
     while (1) {
         RGB_RED_SET;
