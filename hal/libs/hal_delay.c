@@ -7,7 +7,7 @@
 
 __attribute__((weak)) void delayus(uint32_t time)
 {
-    PLIC->IE &= ~(0x1 << TIMER0_IRQn);
+    PLIC->IER &= ~(0x1 << TIMER0_IRQn);
     htimer0.State = STATE_BUSY;
     TIMER0->CTRL = 0;
     TIMER0->LOAD = time * 100;
@@ -20,7 +20,7 @@ __attribute__((weak)) void delayus(uint32_t time)
 
 __attribute__((weak)) void delayms(uint32_t time)
 {
-    PLIC->IE &= ~(0x1 << TIMER0_IRQn);
+    PLIC->IER &= ~(0x1 << TIMER0_IRQn);
     htimer0.State = STATE_BUSY;
     TIMER0->CTRL = 0;
     TIMER0->LOAD = time * 100000;
