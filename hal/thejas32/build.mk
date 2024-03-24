@@ -88,8 +88,8 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-ifndef BOOTM
-BOOTM = 1
+ifndef BOOTSEL
+BOOTSEL = 1
 endif
 
 FLASHER = xmodem
@@ -102,7 +102,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-ifeq ($(BOOTM), 1)
+ifeq ($(BOOTSEL), 1)
 LDSCRIPT = $(VEGA_SDK_PATH)/thejas32flash.ld
 else
 LDSCRIPT = $(VEGA_SDK_PATH)/thejas32ram.ld
