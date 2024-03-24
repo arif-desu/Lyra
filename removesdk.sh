@@ -1,15 +1,11 @@
 #! /bin/env bash
 
-HEADER_PATH=/usr/local/include/vega
-SDK_PATH=/opt/Lyra
-RISCV_TOOLCHAIN_PATH=/opt/riscv-toolchain
-MINIRC=/etc/minirc.aries
-DEFAULT_SHELL=$(grep "$SUDO_USER" /etc/passwd | awk -F: '{print $7}' | awk -F/ '{print $NF}')
-RC_FILE=/dev/zero
-UDEV_CONFIG=/etc/udev/rules.d/10-aries.rules
+if [ ! -f $PWD/config ];then
+    echo "Configuration file absent, aborting installation!"
+    exit 1
+fi
 
-NORMAL=$(tput sgr0)
-MAGENTA=$(tput setaf 5)
+source $PWD/config
 
 if [[ "$EUID" != 0 ]]
 then 
@@ -26,7 +22,7 @@ if [ -d "$SDK_PATH" ];then
     rm -rf $SDK_PATH
 fi
 
-printf "Remove the RISC-V Toolchain (Y/n):"
+printf "${YELLOW}Remove the RISC-V Toolchain (Y/n):${NORMAL} "
 read -r input 
 
 if [ -z "$input" ] || [ "${input^^}" = "Y" ]; then

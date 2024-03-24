@@ -3,26 +3,14 @@
 # THEJAS32 SDK setup script
 # Author - Arif B <arif.dev@pm.me>
 
-# Colors require ncurses to be installed
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
-MAGENTA=$(tput setaf 5)
-CYAN=$(tput setaf 6)
-NORMAL=$(tput sgr0)
+if [ ! -f $PWD/config ];then
+    echo "Configuration file absent, aborting installation!"
+    exit 1
+fi
+
+source $PWD/config
 
 set -e
-
-HOST_ARCH=$(uname -m)
-SETUP_PATH=$(realpath $PWD)
-HEADER_PATH=/usr/local/include/vega
-SDK_PATH=/opt/Lyra
-RISCV_TOOLCHAIN_PATH=/opt/riscv-toolchain
-DEFAULT_SHELL=$(grep "$SUDO_USER" /etc/passwd | awk -F: '{print $7}' | awk -F/ '{print $NF}')
-RC_FILE=/dev/zero
-MINICOM_CONFIG=/etc/minirc.aries
-UDEV_CONFIG=/etc/udev/rules.d/10-aries.rules
 
 # Check if running as root
 if [[ "$EUID" != 0 ]]
@@ -36,7 +24,7 @@ fi
 if command -v apt &> /dev/null; then
     apt-get -y install make tar xz-utils git minicom gcc
 elif command -v yum &> /dev/null; then
-    yum install -y make tar xz git minicom gcc
+    yum install -y make tar xz git minicom gcc ncurses
 elif command -v pacman &> /dev/null; then
     pacman -Sy make tar xz git minicom gcc
 else
@@ -49,23 +37,18 @@ else
     fi
 fi
 
-
-
 # Copy header files
 mkdir -p "$HEADER_PATH"
 cp "$SETUP_PATH"/hal/include/* "$HEADER_PATH"
 
-
-# Create directory for SDK
+# Copy libraries
 mkdir -p "$SDK_PATH"
-
 cp hal/thejas32/* "$SDK_PATH"
 cp -r "$SETUP_PATH"/hal/drivers "$SDK_PATH"
 cp -r "$SETUP_PATH"/hal/libs "$SDK_PATH"
 gcc "$SETUP_PATH"/tools/xmodem.c -o "$SDK_PATH"/xmodem
 
-
-
+# Add sdk directory to PATH variable
 case "$DEFAULT_SHELL" in
   "bash")
     RC_FILE=/home/$SUDO_USER/.bashrc
@@ -86,7 +69,7 @@ echo "export VEGA_SDK_PATH=$SDK_PATH" >> $RC_FILE
 # Download RISC-V cross-toolchain 
 # WIP, Downloading a fixed release for Linux currently
 printf "\nIf this is your first time running the script, you might want to download pre-compiled RISC-V toolchain\n"
-printf "\n${YELLOW}Download RISC-V Toolchain? ([Y]/n) :${NORMAL}"
+printf "\n${YELLOW}Download RISC-V Toolchain? ([Y]/n) :${NORMAL} "
 read -r input
 
 if [ -z "$input" ] || [ "${input^^}" = "Y" ]; then
