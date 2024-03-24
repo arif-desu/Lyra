@@ -4,12 +4,10 @@
  */
 
 #include <stdint.h>
-#include <errno.h>
 #include <vega/csr.h>
 #include <vega/interrupt.h>
 #include <vega/thejas32.h>
 
-extern unsigned long InterruptHandler;
 
 /* Platform-Level Interrupt Controller - vector table */
 
@@ -53,11 +51,7 @@ static void (* plic_vtable[32])(void) = {
 void __enable_irq(void)
 {
     set_csr(mie, MIE_EIE);
-    
     set_csr(mstatus, MSTATUS_MIE);
-
-    write_csr(mtvec, (unsigned long)&InterruptHandler);
-
 }
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -70,47 +64,17 @@ void __disable_irq(void)
 
 /*---------------------------------------------------------------------------------------------------*/
 
-int PLIC_Enable(uint8_t IRQn)
-{
-    if (IRQn > 31) {
-        errno = EINVAL;
-        return FAIL;
-    }
-    else {
-        PLIC->IE |= 0x1UL << IRQn;
-    }
-    return 0;
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-int PLIC_Disable(uint8_t IRQn)
-{
-    if (IRQn > 31) {
-        errno = EINVAL;
-        return FAIL;
-    }
-    else {
-        PLIC->IE &= ~(0x1UL << IRQn);
-    }
-    return OK;
-}
-
-/*---------------------------------------------------------------------------------------------------*/
-
-void ISR_Delegator(void)
+void handle_trap(void)
 {
     int cause = 0, type = 0;
 
     type = (read_csr(mcause) >> 31);
 
     if (type) {
-
         cause = ((read_csr(mcause) << 1) >> 1);
 
         if (cause == MCAUSE_EXTI) {
             uint32_t intstat = PLIC->ISR;
-
             for (uint32_t i = 0; i < 32; i++) {
                 if ((intstat >> i) & 0x1UL) {
                     // Call ISR for each triggered interrupt, according to priority
