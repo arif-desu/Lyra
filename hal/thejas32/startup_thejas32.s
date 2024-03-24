@@ -34,6 +34,18 @@ _start:
 	call atexit
 	call __libc_init_array
 
+	/* Set trap entry */
+	la t0, _trap_entry # 
+	csrw mtvec, t0
+
+	/* Set external interrupt enable (EIE) bit in MIE(Machine Interrupt Enable) register */
+	li t0, 0x00000800			
+	csrrs x0, mie, t0
+
+	/* Set interrupt enable bit in mstatus register */
+	li t0, 0x00000008
+	csrrs x0, mstatus, t0
+
 	/* argc = 0, argv = 0 */
 	li a0, 0
 	li a1, 0
@@ -44,11 +56,11 @@ LoopForever:
 
 .align 2
 
-	.section .text.InterruptHandler,"ax",@progbits
-	.global InterruptHandler
+	.section .text._trap_entry,"ax",@progbits
+	.global _trap_entry
 
-InterruptHandler:
-	addi sp, sp, -272
+_trap_entry:
+	addi sp, sp, -128
 
 	# Save register contexts
 
@@ -85,7 +97,7 @@ InterruptHandler:
 	sw x31, 124(sp)
 
 	# Jump to delegator routine
-	jal ISR_Delegator
+	jal handle_trap
 
 	# Restore register context on return
 
@@ -122,5 +134,5 @@ InterruptHandler:
 	lw x31, 124(sp)
 
 
-	addi sp, sp, 272
+	addi sp, sp, 128
 	mret
