@@ -1,39 +1,64 @@
 # THEJAS32
 
+Thejas32 uses the ET1031 CPU core based on RISC-V ISA. The salient features include :
+
+- RISC-V `rv32im` ISA, including CSR and fence instructions.
+- 100 MHz clock frequency
+- 250 KB RAM
+- 2 x 16-bit GPIOs
+- 3 x 32-bit Timers
+- 3 x UARTs
+- 4 x SPIs
+- 8 x PWM Channels
+
+---
+
+## Memory Map
+
+ Peripheral Register         | Start      | End        | Interrupt Number |
+|-----------------------------|------------|------------|------------------|
+| RAM                         | 0x00200000 | 0x00237FFF | -                |
+| UART0                       | 0x10000100 | 0x100001FF | 0                |
+| UART1                       | 0x10000200 | 0x100002FF | 1                |
+| UART2                       | 0x10000300 | 0x100003FF | 2                |
+| SPI0                        | 0x10000600 | 0x100006FF | 3                |
+| SPI1                        | 0x10000700 | 0x100007FF | 4                |
+| I2C0                        | 0x10000800 | 0x100008FF | 5                |
+| I2C1                        | 0x10000900 | 0x100009FF | 6                |
+| TIMER0                      | 0x10000A00 | 0x10000A10 | 7                |
+| TIMER1                      | 0x10000A14 | 0x10000A24 | 8                |
+| TIMER2                      | 0x10000A28 | 0x10000A38 | 9                |
+| TIMERS INTERRUPT STATUS     | 0x10000AA0 |            |                  |
+| TIMERS INTERRUPT CLEAR      | 0x10000AA4 |            |                  |
+| TIMERS RAW INTERRUPT STATUS | 0x10000AA8 |            |                  |
+| I2C2                        | 0x10001000 | 0x10001FFF | 22               |
+| GPIOA                       | 0x10080000 |            | 10 - 21          |
+| GPIOB                       | 0x10180000 |            |                  |
+| SPI2                        | 0x10200100 | 0x102001FF | 23               |
+| SPI3                        | 0x10200200 | 0x102002FF |                  |
+| PWM                         | 0x10400000 | 0x104000FF | 24 - 31          |
+| PLIC                        | 0x20010000 | 0x2001FFFF |                  |
+
+---
+
 ## Boot-up
 
-On PoR, the boot-loader starts executing and the BOOTSEL jumper selects where to execute the code from
+On PoR, the boot-loader in the on-chip rom starts executing and the BOOTSEL jumper selects where to execute the code from
 
 | Jumper Position | BOOTSEL | Boot Mode                     |
 | --------------- | ------- | ----------------------------- |
 | Open            | 0       | UART XMODEM                   |
 | Closed          | 1       | Boot from SPI Flash           |
 
-- When **BOOTSEL=0**, the bootloader waits for the user to upload the executable code (.bin format) over UART. The downloaded code is copied to RAM and code execution begins.
+- When **BOOTSEL=0**, the boot-loader waits for the user to upload the executable code (.bin format) over UART. The downloaded code is copied to RAM and code execution begins.
 
 ```
-+-----------------------------------------------------------------------------+
- |           VEGA Series of Microprocessors Developed By C-DAC, INDIA          |
- |     Microprocessor Development Programme, Funded by MeitY, Govt. of India   |
- +-----------------------------------------------------------------------------+
- | Bootloader, ver 1.0.0 [  (hdg@cdac_tvm) Tue Dec  15 16:50:32 IST 2020 #135] |
- |                                                                             |
- |  ___    _________________________          ISA  : RISC-V [RV32IM]           |
- |  __ |  / /__  ____/_  ____/__    |                                          |
- |  __ | / /__  __/  _  / __ __  /| |         CPU  : VEGA ET1031               |
- |  __ |/ / _  /___  / /_/ / _  ___ |                                          |
- |  _____/  /_____/  \____/  /_/  |_|         SoC  : THEJAS32                  |
- +---------------------------------------+-------------------------------------+
- |         www.vegaprocessors.in         |             vega@cdac.in            |
- +---------------------------------------+-------------------------------------+
-
  Transfer mode  : UART XMODEM
  
  IRAM           : [0x200000 - 0x23E7FF] [250 KB]
  
  Please send file using XMODEM and then press ENTER key.
  CCCCCCCCCCCCC
-
 ```
 To upload code in this mode, press `Ctrl+A S` to send file over serial, select xmodem and navigate to the program binary location.
 
@@ -54,21 +79,6 @@ To upload code in this mode, press `Ctrl+A S` to send file over serial, select x
 Here's the console log when BOOTSEL=1 : 
 
 ```
-+-----------------------------------------------------------------------------+
- |           VEGA Series of Microprocessors Developed By C-DAC, INDIA          |
- |     Microprocessor Development Programme, Funded by MeitY, Govt. of India   |
- +-----------------------------------------------------------------------------+
- | Bootloader, ver 1.0.0 [  (hdg@cdac_tvm) Tue Dec  15 16:50:32 IST 2020 #135] |
- |                                                                             |
- |  ___    _________________________          ISA  : RISC-V [RV32IM]           |
- |  __ |  / /__  ____/_  ____/__    |                                          |
- |  __ | / /__  __/  _  / __ __  /| |         CPU  : VEGA ET1031               |
- |  __ |/ / _  /___  / /_/ / _  ___ |                                          |
- |  _____/  /_____/  \____/  /_/  |_|         SoC  : THEJAS32                  |
- +---------------------------------------+-------------------------------------+
- |         www.vegaprocessors.in         |             vega@cdac.in            |
- +---------------------------------------+-------------------------------------+
-
  Copying from FLASH to IRAM
 
  [INFO] Flash ID: 1f:86:01 Flash initialized
@@ -77,20 +87,24 @@ Here's the console log when BOOTSEL=1 :
  Starting program ...
 ```
 
+NOTE : In this mode, the upper 8KB of RAM is reserved for the Arduino boot-loader.
+
+All examples in this repo assume `BOOTSEL = 1`. Define `BOOTSEL = 0` in your Makefile to compile for boot-mode 0.
+
 ---
 
 ## GPIO
 
-Thejas32 has two GPIO controllers - GPIOA, GPIOB - each of them 16 bit wide.
+The GPIO controller on Thejas32 is based on [ARM PL061](https://developer.arm.com/documentation/ddi0190/b/introduction/about-the-arm-primecell-gpio--pl061-?lang=en) and features two 16-bit wide GPIO instances.
 
 GPIO is accessible with two registers :
 
-- DIR (Direction Register)
-- DATA (Data Register)
+- **DIR** (Direction Register)
+- **DATA** (Data Register)
 
-`GPIOA_DIR` - 0x100C0000
+`GPIOA_DIR` - `0x100C0000`
 
-`GPIOB_DIR` - 0x101C0000
+`GPIOB_DIR` - `0x101C0000`
 
 The DATA register for each GPIO appears at 16 locations in memory, according to the Pin number selected.
 
@@ -102,7 +116,7 @@ The PADDR register needs to be set/reset at appropriate location and bit for wri
 
 Suppose you wish to write logical _LOW_ to GPIOA Pin 5 :
 
-We define address `PADDR` as `( (1 << pin) << 2 )`. `PADDR` acts as a mask for `GPIO_DATA`
+We define address `PADDR` as `( (1 << pin) << 2 )`. 
 
 `PADDR = (1 << 5) << 2`
 
@@ -114,13 +128,11 @@ Now write to address appropriate bit as per pin:
 
 `*GPIO_DATA = 0 << 5;`
 
-Here's a figure explaining the operation on a similar 8-bit implementation (ET1031 is a 16-bit implementation) :
+Here's a figure explaining the operation by writing `0xFB`
 
+![PL061](/images/pl061.png)
 
-
-*u = unchanged
-
-Data `0xFB` is written to **DATA** register. Only the bits masked with 1 in **PADDR** get modified in GPIO_DATA (bits 5 and 2).
+Data `0xFB` is written to **GPIO_DATA** register. Only the bits set to 1 in **PADDR** get modified in GPIO_DATA (bits 5 and 2).
 
 ---
 
@@ -147,19 +159,19 @@ The counter decrements each cycle and when the count reaches zero, `0x00000000`,
 
 In both modes the end of timer count is signalled by setting a bit in the timer's local interrupt register.
 
-- When masked, the raw interrupt status can be read in `TIMERS_RAWISR`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
-- When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit sets to 1 when the interrupt occurs.
+- When timer interrupt is masked, the raw interrupt status can be read in `TIMERS_RAWISR`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
+- When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit is set to 1 when the interrupt occurs.
 
-#### Timer
+#### Load Count
 
-At a 100 $MHz$ clock frequency, the timer ticks at 10 $ns$/tick ( $\frac{1}{100*10^6}$)
+At a $100 \enspace MHz$ clock frequency, the timer ticks at 10 $ns$/tick  $ \left( \frac{1}{100*10^6} \right)$
 
-For example, to achieve a perioud of $1 \enspace \mu s$ 
+For example, to achieve a period of $1 \enspace \mu s$ 
 
 
 $10 \ ns \quad \rightarrow \quad 1 \ tick$
 
-So, $1 \ \mu s \quad \rightarrow \frac{10^{-6}}{10 * 10^{-9}} \quad ticks$
+So, $1 \ \mu s \enspace \rightarrow \frac{1 \mu s}{10 ns} \rightarrow \frac{10^{-6}}{10 * 10^{-9}} \quad ticks$
 
 $\therefore 1 \mu s \quad \rightarrow \ 100 \quad ticks $
 
@@ -175,7 +187,7 @@ As defined by RISC-V ISA manual:
 
 - **Interrupt** : Refers to an external _asynchronous_ event that may cause a hart to experience unexpected transfer of control. Typically triggered by peripherals.
 
-The transfer of control in both cases is called a **Trap**.
+The transfer of control in either case is called a **Trap**.
 
 ## Interrupt
 
