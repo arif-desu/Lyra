@@ -152,6 +152,24 @@ int TIMER_Stop(TIMER_Handle_t *htimer)
     }
 
     htimer->Instance->CTRL &= ~(TIMER_CTRL_EN);
+
+    int irqn;
+    
+    if (htimer->Instance == TIMER0) {
+       irqn = TIMER0_IRQn; 
+    }
+    else if (htimer->Instance == TIMER1) {
+        irqn = TIMER1_IRQn;
+    }
+    else if (htimer->Instance == TIMER2) {
+        irqn = TIMER2_IRQn;
+    }
+    else {
+        errno = ENXIO;
+        return FAIL;
+    }
+
+    PLIC->IER &= ~(0x1UL << irqn);
     htimer->State = STATE_READY;
     return OK;
 }
