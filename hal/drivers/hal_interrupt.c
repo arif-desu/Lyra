@@ -50,16 +50,16 @@ static void (* plic_vtable[32])(void) = {
 
 void __enable_irq(void)
 {
-    set_csr(mie, MIE_EIE);
-    set_csr(mstatus, MSTATUS_MIE);
+    csr_setbit(mie, MIE_EIE);
+    csr_setbit(mstatus, MSTATUS_MIE);
 }
 
 /*---------------------------------------------------------------------------------------------------*/
 
 void __disable_irq(void)
 {
-    clear_csr(mie, MIE_EIE);
-    clear_csr(mstatus, MSTATUS_MIE);
+    csr_clrbit(mie, MIE_EIE);
+    csr_clrbit(mstatus, MSTATUS_MIE);
 }
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -68,10 +68,10 @@ void handle_trap(void)
 {
     int cause = 0, type = 0;
 
-    type = (read_csr(mcause) >> 31);
+    type = (csr_read(mcause) >> 31);
 
     if (type) {
-        cause = ((read_csr(mcause) << 1) >> 1);
+        cause = ((csr_read(mcause) << 1) >> 1);
 
         if (cause == MCAUSE_EXTI) {
             uint32_t intstat = PLIC->ISR;

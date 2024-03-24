@@ -50,42 +50,24 @@
 #define MCAUSE_EXTI        (11)
 
 
-/* CSR read and write macros */
+/* CSR Macros */
 
-/* Read from CSR into variable */
-#define csr_read(csr,val) \
-    __asm__ volatile("csrr %0, " #csr : "=r"(val));         
-
-/* Write to CSR from the variable */
-#define csr_write(csr,val) \
-    __asm__ volatile("csrw " #csr ", %0" : : "r"(val));
-
-/* Set bit in CSR */
-#define csr_setbit(csr,bit) \
-    __asm__ volatile("csrrs x0, " #csr ", %0" : : "r"(bit));
-
-/* Clear bit in CSR */
-#define csr_clrbit(csr,bit) \
-    __asm__ volatile("csrrc x0, " #csr ", %0" : : "r"(bit));
-
-
-// CDAC implementations of csr macros
-#define read_csr(reg) ({ unsigned long __tmp; \
+#define csr_read(reg) ({ unsigned long __tmp; \
   asm volatile ("csrr %0, " #reg : "=r"(__tmp)); \
   __tmp; })
 
-#define write_csr(reg, val) ({ \
+#define csr_write(reg, val) ({ \
   asm volatile ("csrw " #reg ", %0" :: "rK"(val)); })
 
-#define swap_csr(reg, val) ({ unsigned long __tmp; \
+#define csr_swap(reg, val) ({ unsigned long __tmp; \
   asm volatile ("csrrw %0, " #reg ", %1" : "=r"(__tmp) : "rK"(val)); \
   __tmp; })
 
-#define set_csr(reg, bit) ({ unsigned long __tmp; \
+#define csr_setbit(reg, bit) ({ unsigned long __tmp; \
   asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "rK"(bit)); \
   __tmp; })
 
-#define clear_csr(reg, bit) ({ unsigned long __tmp; \
+#define csr_clrbit(reg, bit) ({ unsigned long __tmp; \
   asm volatile ("csrrc %0, " #reg ", %1" : "=r"(__tmp) : "rK"(bit)); \
   __tmp; })
 
