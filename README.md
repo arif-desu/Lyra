@@ -2,16 +2,18 @@
 
 ![](images/lyrabanner.png)
 
-Lyra is an alternative SDK for CDAC's VEGA series of micro-controllers, encompassing its development, documentation, and resources for a seamless experience. The name is inspired by the constellation hosting one of the brightest night stars - Vega.
+Lyra is an alternative SDK for CDAC's VEGA series of micro-controllers, encompassing its development, documentation, and resources for a seamless experience. 
 
 The focus of the project is providing a simple UX to program the micro-controller.
 
 ### **DISCLAIMER** 
 The project is NOT affiliated to or endorsed by CDAC (Centre for Developemnet of Advanced Computing). This is an independent project with original works.
 
+---
+
 Differences compared to CDAC's official SDK :
 - Works on all leading computer architectures and distributions.
-- Simple programming interface with ST style APIs and interrupt handler routines.
+- Simple programming interface with ST style APIs and interrupt callback routines.
 - Uses the newlib standard C library.
 
 ## Getting Started
@@ -29,7 +31,7 @@ sudo ./setup.sh
 
 ### Environment Setup
 
-The setup script alreads sets up the `VEGA_SDK_PATH` variable in your default shell profile. So any editor works. See [Sample Project](examples/Blinky/)
+The setup script alreads sets up the `VEGA_SDK_PATH` variable in your default shell profile. So any editor works. See [Sample Project](/examples/Blinky/)
 
 My personal recommendation is Microsoft's [Visual Studio Code](https://code.visualstudio.com).
 
