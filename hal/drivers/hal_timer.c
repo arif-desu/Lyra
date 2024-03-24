@@ -129,7 +129,7 @@ int TIMER_Start_IT(TIMER_Handle_t *htimer)
         return FAIL;
     }
 
-    PLIC->IE |= 0x1UL << irqn;
+    PLIC->IER |= 0x1UL << irqn;
 
     htimer->Instance->CTRL |= TIMER_CTRL_EN;
     htimer->State = STATE_BUSY;

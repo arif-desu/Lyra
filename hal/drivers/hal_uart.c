@@ -221,7 +221,7 @@ int UART_Transmit_IT(UART_Handle_t *huart, const char *buffer, uint32_t len)
 	huart->TxBuffer = (char *)buffer;
 	huart->TxXferCount = len;
 	huart->Instance->IER |= UART_IER_TXFE;
-	PLIC->IE |= 0x1 << irqn;
+	PLIC->IER |= 0x1 << irqn;
 
 	huart->TxState = STATE_BUSY;
 
@@ -301,7 +301,7 @@ int UART_Receive_IT(UART_Handle_t *huart, char *buffer, uint32_t len)
 	huart->RxBuffer = buffer;
 	huart->RxXferCount = len;
 	huart->Instance->IER |= UART_IER_RXFF;
-	PLIC->IE |= 0x1 << irqn;
+	PLIC->IER |= 0x1 << irqn;
 
 	huart->RxState = STATE_BUSY;
 

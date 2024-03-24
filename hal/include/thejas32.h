@@ -154,8 +154,8 @@ PLIC - Platform-Level Interrupt Controller (for External Interrupts)
 
 typedef struct {
 	const __IO uint32_t RAWISR;				/* Raw Interrupt Status */
-	const uint32_t Padding1;				/* Address Padding*/
-	__IO uint32_t IE;						/* Interrupt Enable */
+	const uint32_t Padding1;				/* Address Padding */
+	__IO uint32_t IER;						/* Interrupt Enable Register */
 	const uint32_t Padding2;				/* Address padding */
 	const __IO uint32_t ISR;				/* Interrupt Status */
 } PLIC_Reg_t;

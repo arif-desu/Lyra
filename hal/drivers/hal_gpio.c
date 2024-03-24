@@ -185,7 +185,7 @@ int GPIO_IT_Enable(uint16_t pin)
         return FAIL;
     }
     else {
-        PLIC->IE |= 0x1U << (pin+10);
+        PLIC->IER |= 0x1U << (pin+10);
     }
     return OK;
 }
@@ -199,7 +199,7 @@ int GPIO_IT_Disable(uint16_t pin)
         return FAIL;
     }
     else {
-        PLIC->IE &= ~(0x1U << (pin+10));
+        PLIC->IER &= ~(0x1U << (pin+10));
     }
     return OK;
 }
