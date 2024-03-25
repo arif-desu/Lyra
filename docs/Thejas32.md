@@ -165,7 +165,7 @@ In both modes the end of timer count is signalled by setting a bit in the timer'
 
 #### Load Count
 
-At a $100 \enspace MHz$ clock frequency, the timer ticks at 10 $ns$/tick  $ \left( \frac{1}{100*10^6} \right)$
+At a $100 \enspace MHz$ clock frequency, the timer ticks at 10 $ns$/tick  ($ \frac{1}{100*10^6} $)
 
 For example, to achieve a period of $1 \enspace \mu s$ 
 
@@ -184,7 +184,7 @@ So load a value of **100** for 1 $\mu s$ time period.
 
 While Thejas32 does not have standard name for the interrupt controller used, all interrupts are handled globally by one single controller, so henceforth, the interrupt controller would be referred to as **PLIC** (Platform-Level Interrupt Controller).
 
-ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, will cause those registers to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
+ET1031 **does NOT support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, will cause those registers to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
 
 #### Terminologies
 
@@ -209,7 +209,7 @@ A subset of CSRs (**C**ontrol and **S**tatus **R**egisters) assist in handling t
 - `mepc` (Machine Exception Program Counter) - Holds the PC (program counter) value when an interrupt/exception is encountered. 
 - `mcause` (Machine Cause Register) - The highest bit (XLEN-1) indicates whether the trap was cause by exception(0) or interrupt(1). The rest of the bits contain exception code.
 
-## Setting trap entry
+### Setting trap entry
 
 This is implemented in software.
 
