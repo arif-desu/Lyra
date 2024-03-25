@@ -52,12 +52,6 @@ void __enable_irq(void);
 /* Global interrupt Disable */
 void __disable_irq(void);
 
-/* PLIC Interrupt Enable */
-int PLIC_Enable(uint8_t IRQn);
-
-/* PLIC Interrupt Disable */
-int PLIC_Disable(uint8_t IRQn);
-
 /*---------------------------------------------------------------------------------------------------*/
 /* IRQ Handlers for every interrupt */
 /*---------------------------------------------------------------------------------------------------*/
