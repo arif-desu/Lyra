@@ -38,7 +38,7 @@ _start:
 	la t0, _trap_entry # 
 	csrw mtvec, t0
 
-	/* Set external interrupt enable (EIE) bit in MIE(Machine Interrupt Enable) register */
+	/* Set external interrupt enable (EIE) bit in mie register */
 	li t0, 0x00000800			
 	csrrs x0, mie, t0
 
@@ -54,16 +54,18 @@ _start:
 LoopForever:
 	j LoopForever
 
+.size _start, .-_start
+
+/*----------------------------------------------------------*/
 .align 2
 
 	.section .text._trap_entry,"ax",@progbits
 	.global _trap_entry
 
 _trap_entry:
-	addi sp, sp, -128
+	addi sp, sp, -31*4
 
 	# Save register contexts
-
 	sw x1, 4(sp) 
 	sw x2, 8(sp)
 	sw x3, 12(sp)
@@ -96,11 +98,10 @@ _trap_entry:
 	sw x30, 120(sp)
 	sw x31, 124(sp)
 
-	# Jump to delegator routine
-	jal handle_trap
+	# Jump to trap handler
+	jal _trap_handler
 
 	# Restore register context on return
-
 	lw x1, 4(sp) 
 	lw x2, 8(sp)
 	lw x3, 12(sp)
@@ -133,6 +134,7 @@ _trap_entry:
 	lw x30, 120(sp)
 	lw x31, 124(sp)
 
+	addi sp, sp, 31*4
+	mret					/* Set PC to mepc and return */
 
-	addi sp, sp, 128
-	mret
+.size _trap_entry, .-_trap_entry

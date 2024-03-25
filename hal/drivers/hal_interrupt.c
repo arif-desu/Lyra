@@ -64,24 +64,34 @@ void __disable_irq(void)
 
 /*---------------------------------------------------------------------------------------------------*/
 
-void handle_trap(void)
+__attribute__((weak))void _exception_handler(void)
 {
-    int cause = 0, type = 0;
+    return;
+}
 
-    type = (csr_read(mcause) >> 31);
+void _interrupt_handler(void)
+{
+    uint32_t intstat = PLIC->ISR;
 
-    if (type) {
-        cause = ((csr_read(mcause) << 1) >> 1);
-
-        if (cause == MCAUSE_EXTI) {
-            uint32_t intstat = PLIC->ISR;
-            for (uint32_t i = 0; i < 32; i++) {
-                if ((intstat >> i) & 0x1UL) {
-                    // Call ISR for each triggered interrupt, according to priority
-                    plic_vtable[i]();
-                }
-            }
+    for (uint32_t i = 0; i < 32; i++) {
+        if ((intstat >> i) & 0x1UL) {
+            // Call ISR for each triggered interrupt, according to priority
+            plic_vtable[i]();
         }
+    }
+}
+
+void _trap_handler(void)
+{
+    int cause;
+
+    cause = (csr_read(mcause) >> 31);
+
+    if (cause) {
+        _interrupt_handler();
+    }
+    else {
+        _exception_handler();
     }
 }
 
