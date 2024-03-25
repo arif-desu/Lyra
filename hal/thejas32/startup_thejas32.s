@@ -65,7 +65,7 @@ LoopForever:
 _trap_entry:
 	addi sp, sp, -31*4
 
-	# Save register contexts
+	# Save register context
 	sw x1, 4(sp) 
 	sw x2, 8(sp)
 	sw x3, 12(sp)
@@ -135,6 +135,6 @@ _trap_entry:
 	lw x31, 124(sp)
 
 	addi sp, sp, 31*4
-	mret					/* Set PC to mepc and return */
+	mret					/* Set PC to mepc */
 
 .size _trap_entry, .-_trap_entry
