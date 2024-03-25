@@ -165,16 +165,16 @@ In both modes the end of timer count is signalled by setting a bit in the timer'
 
 #### Load Count
 
-At a $100 \enspace MHz$ clock frequency, the timer ticks at 10 $ns$/tick  ($ \frac{1}{100*10^6} $)
+At a $100 \ MHz$ clock frequency, the timer counter decrements by 1 every $10 \ ns$  $\left( \frac{1}{100*10^6} \right)$
 
-For example, to achieve a period of $1 \enspace \mu s$ 
+For example, to achieve a period of $1 \ \mu s$ 
 
 
 $10 \ ns \quad \rightarrow \quad 1 \ tick$
 
-So, $1 \ \mu s \enspace \rightarrow \frac{1 \mu s}{10 ns} \rightarrow \frac{10^{-6}}{10 * 10^{-9}} \quad ticks$
+So, $1 \ \mu s \enspace \rightarrow \ \frac{1 \mu s}{10 ns} \ \rightarrow \ \frac{10^{-6}}{10 * 10^{-9}} \quad ticks$
 
-$\therefore 1 \mu s \quad \rightarrow \ 100 \quad ticks $
+$\therefore 1 \ \mu s \quad \rightarrow \ 100 \quad ticks $
 
 So load a value of **100** for 1 $\mu s$ time period.
 
