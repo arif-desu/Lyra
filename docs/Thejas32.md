@@ -87,7 +87,7 @@ Here's the console log when BOOTSEL=1 :
  Starting program ...
 ```
 
-NOTE : In this mode, the upper 8KB of RAM is reserved for the Arduino boot-loader.
+NOTE : In this mode, the upper 8KB of RAM is reserved for another boot-loader present on flash.
 
 All examples in this repo assume `BOOTSEL = 1`. Define `BOOTSEL = 0` in your Makefile to compile for boot-mode 0.
 
@@ -144,7 +144,7 @@ The timers feature 2 modes :
 
 ### Free-running Mode
 Counter starts with the value 0xFFFFFFFF and counts down to 0.
-Alternatively, a value can be loaded into the TIMER_LOAD register can timer starts counting down from this value. 
+Alternatively, loading a value into the LoadCount register can timer starts counting down from this value. 
 
 When the count reaches zero (0x00000000), an interrupt is generated and the counter wraps around to 0xFFFFFFFF irrespective of the value in the TIMER_LOAD register.
 
@@ -159,7 +159,7 @@ The counter decrements each cycle and when the count reaches zero, `0x00000000`,
 
 In both modes the end of timer count is signalled by setting a bit in the timer's local interrupt register.
 
-- When timer interrupt is masked, the raw interrupt status can be read in `TIMERS_RAWISR`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 ((0x1 << 2) or 0x4).
+- When timer interrupt is masked, the raw interrupt status can be read in `TIMERS_RAWISR`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 (`(0x1 << 2)` or `0x4`).
 - When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit is set to 1 when the interrupt occurs.
 
 #### Load Count
@@ -183,15 +183,14 @@ So load a value of **100** for 1 $\mu s$ time period.
 
 As defined by RISC-V ISA manual: 
 
-- **Exception** : Used to refer to an unusual condition occurring at runtime (ie _synchronous_ in nature) associated with an instruction in the current core. Eg : Illegal instruction, Division-by-zero.
+- **Exception** : Used to refer to an unusual condition occurring at runtime (ie _synchronous_ in nature) associated with an instruction in the current core. Eg : Illegal instruction, division-by-zero.
 
 - **Interrupt** : Refers to an external _asynchronous_ event that may cause a hart to experience unexpected transfer of control. Typically triggered by peripherals.
 
 The transfer of control in either case is called a **Trap**.
 
-## Interrupt
+While Thejas32 does not have standard name for the interrupt controller used, all interrupts are handled globally by one single controller, so henceforth, the interrupt controller would be referred to as **PLIC** (Platform-Level Interrupt Controller).
 
-Interrupts can only be **enabled/ disabled on a global basis** and not individually. There is an event/interrupt controller outside of the core that performs masking and buffering of the interrupt lines. 
+ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, will cause those registers to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
 
-ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, i.e. before having saved the `MEPC` and `MSTATUS` register, will cause those register to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
-
+Check the [Interrupts](/docs/Interrupts.md) doc to learn how interrupts are handled on RISC-V.
