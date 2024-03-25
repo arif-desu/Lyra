@@ -9,6 +9,7 @@ Thejas32 uses the ET1031 CPU core based on RISC-V ISA. The salient features incl
 - 3 x 32-bit Timers
 - 3 x UARTs
 - 4 x SPIs
+- 3 x I2Cs
 - 8 x PWM Channels
 
 ---
@@ -60,7 +61,7 @@ On PoR, the boot-loader in the on-chip rom starts executing and the BOOTSEL jump
  Please send file using XMODEM and then press ENTER key.
  CCCCCCCCCCCCC
 ```
-To upload code in this mode, press `Ctrl+A S` to send file over serial, select xmodem and navigate to the program binary location.
+To upload code in this mode using `minicom`, press `Ctrl+A S` to send file over serial, select xmodem and navigate to the program binary location.
 
 ```
 +-[Upload]--+
@@ -128,7 +129,7 @@ Now write to address appropriate bit as per pin:
 
 `*GPIO_DATA = 0 << 5;`
 
-Here's a figure explaining the operation by writing `0xFB`
+Here's an illustration explaining the operation by writing `0xFB`
 
 ![PL061](/images/pl061.png)
 
@@ -181,16 +182,68 @@ So load a value of **100** for 1 $\mu s$ time period.
 ---
 # Interrupts and Exceptions
 
-As defined by RISC-V ISA manual: 
-
-- **Exception** : Used to refer to an unusual condition occurring at runtime (ie _synchronous_ in nature) associated with an instruction in the current core. Eg : Illegal instruction, division-by-zero.
-
-- **Interrupt** : Refers to an external _asynchronous_ event that may cause a hart to experience unexpected transfer of control. Typically triggered by peripherals.
-
-The transfer of control in either case is called a **Trap**.
-
 While Thejas32 does not have standard name for the interrupt controller used, all interrupts are handled globally by one single controller, so henceforth, the interrupt controller would be referred to as **PLIC** (Platform-Level Interrupt Controller).
 
 ET1031 **does support nested interrupt/exception handling**. Exceptions inside interrupt/exception handlers cause another exception, thus exceptions during the critical part of the exception handlers, will cause those registers to be overwritten. Interrupts during interrupt/exception handlers are disabled by default, but can be explicitly enabled if desired.
 
-Check the [Interrupts](/docs/Interrupts.md) doc to learn how interrupts are handled on RISC-V.
+#### Terminologies
+
+The following are derived from official RISC-V ISA manual:
+
+- **Exception** : Used to refer to an unusual condition occurring at runtime (ie _synchronous_ in nature) associated with an instruction in the current core. Eg : illegal instruction, division-by-zero etc.
+
+- **Interrupt** : Refers to an external _asynchronous_ event that may cause a hart to experience unexpected transfer of control. Typically triggered by peripherals.
+
+- **Trap** : The transfer of control to a trap handler caused by either an exception or an interrupt.
+
+---
+
+A subset of CSRs (**C**ontrol and **S**tatus **R**egisters) assist in handling traps. The registers are discussed briefly here, for detailed information, consult RISC-V ISA manual vol2 (Privileged).
+
+- `mtvec` (Machine Trap-Vector base-adress register) - Holds the trap vector configuration. Prominently the base address of the trap vector.
+- `mie` (Machine Interrupt Enable) - Used to enable machine-mode interrupts. These are classified as :
+    - External interrupts
+    - Timer interrupts
+    - Software interrupts (exceptions)
+- `mstatus` (Machine Status) - Keeps track of and control the CPU's current operating status. Setting `MIE` bit in `mstatus` registers enables machine-mode interrupts globally.
+- `mepc` (Machine Exception Program Counter) - Holds the PC (program counter) value when an interrupt/exception is encountered. 
+- `mcause` (Machine Cause Register) - The highest bit (XLEN-1) indicates whether the trap was cause by exception(0) or interrupt(1). The rest of the bits contain exception code.
+
+## Setting trap entry
+
+This is implemented in software.
+
+<p align="center">
+<img src="../images/trapsetup.png" alt="trapsetup" width="250"/>
+</p>
+
+---
+
+### Interrupt Arrival
+
+Performed by hardware.
+
+<p align="center">
+<img src="../images/riscvinterrupt.png" alt="traphandle" width="200"/>
+</p>
+
+---
+
+### Handling interrupts
+
+Implemented in software.
+
+<p align="center">
+<img src="../images/traphandle.png" alt="traphandle" width="400"/>
+</p>
+
+---
+
+### More resources 
+
+- [Blog by Muller Lee](https://mullerlee.cyou/2020/07/09/riscv-exception-interrupt/)
+- [RISC-V ISA Manual Vol-2 (Privileged)](https://github.com/riscv/riscv-isa-manual)
+- [Youtube : John's Basement Introduction to RV32I Interrupts and Traps](https://youtu.be/l7JIry6PEX4)
+- [Youtube : Robert Baruch - Interrupts and Exceptions](https://youtu.be/oAIBLeesRlg)
+
+---
