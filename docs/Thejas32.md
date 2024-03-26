@@ -88,7 +88,7 @@ Here's the console log when BOOTSEL=1 :
  Starting program ...
 ```
 
-NOTE : In this mode, the upper 8KB of RAM is reserved for another boot-loader present on flash.
+NOTE : In this mode, 8KB of RAM is reserved for another boot-loader present on flash.
 
 All examples in this repo assume `BOOTSEL = 1`. Define `BOOTSEL = 0` in your Makefile to compile for boot-mode 0.
 
@@ -98,7 +98,7 @@ All examples in this repo assume `BOOTSEL = 1`. Define `BOOTSEL = 0` in your Mak
 
 The GPIO controller on Thejas32 is based on [ARM PL061](https://developer.arm.com/documentation/ddi0190/b/introduction/about-the-arm-primecell-gpio--pl061-?lang=en) and features two 16-bit wide GPIO instances.
 
-GPIO is accessible with two registers :
+GPIOs are controlled using two registers :
 
 - **DIR** (Direction Register)
 - **DATA** (Data Register)
@@ -107,13 +107,13 @@ GPIO is accessible with two registers :
 
 `GPIOB_DIR` - `0x101C0000`
 
-The DATA register for each GPIO appears at 16 locations in memory, according to the Pin number selected.
+The DATA register for each GPIO appears at 16 locations in memory, according to the pin number selected.
 
 The PADDR register needs to be set/reset at appropriate location and bit for writing to GPIO.
 
-`GPIOA_BASE` = 0x10080000
+`GPIOA_BASE` = `0x10080000`
 
-`GPIOB_BASE` = 0x10180000
+`GPIOB_BASE` = `0x10180000`
 
 Suppose you wish to write logical _LOW_ to GPIOA Pin 5 :
 
@@ -121,11 +121,11 @@ We define address `PADDR` as `( (1 << pin) << 2 )`.
 
 `PADDR = (1 << 5) << 2`
 
-Then the GPIO DATA registers occurs at address :
+Then the GPIO_DATA register occurs at address :
 
 `GPIO_DATA = GPIOA_BASE + PADDR`
 
-Now write to address appropriate bit as per pin:
+Now write desired data to this address at desired pin bit:
 
 `*GPIO_DATA = 0 << 5;`
 
@@ -144,23 +144,23 @@ Thejas32 has 3 timers, each 32-bit auto-reload down counter : TIMER0, TIMER1, TI
 The timers feature 2 modes :
 
 ### Free-running Mode
-Counter starts with the value 0xFFFFFFFF and counts down to 0.
-Alternatively, loading a value into the LoadCount register can timer starts counting down from this value. 
+Counter starts with the value `0xFFFFFFFF` and counts down to 0.
+Alternatively, on loading a value into the `TIMER_LOAD` register, timer starts counting down from this value. 
 
-When the count reaches zero (0x00000000), an interrupt is generated and the counter wraps around to 0xFFFFFFFF irrespective of the value in the TIMER_LOAD register.
+When the count reaches zero (`0x00000000`), an interrupt is generated and the counter wraps around to `0xFFFFFFFF` irrespective of the value in the `TIMER_LOAD` register.
 
-If the counter is disabled by clearing the TIMER_CTRL_EN bit in the Timer Control Register, the counter halts and holds its current value. If the counter is re-enabled again then the counter continues decrementing from the current value.
+If the counter is disabled by clearing the `TIMER_CTRL_EN` bit in the Timer Control Register, the counter halts and holds its current value. If the counter is re-enabled again then the counter continues decrementing from the current value.
 
 
 ### Periodic Mode
 An initial counter value can be loaded by writing to the `TIMER_LOAD` Register and the counter starts decrementing from this value if the counter is enabled.
 
-The counter decrements each cycle and when the count reaches zero, `0x00000000`, an interrupt is generated and the counter reloads with the value in the TIMER_LOAD Register. The counter starts to decrement again and this whole cycle repeats for as long as the counter is enabled.
+The counter decrements each cycle and when the count reaches zero, `0x00000000`, an interrupt is generated and the counter reloads with the value in the `TIMER_LOAD` Register. The counter starts to decrement again and this whole cycle repeats for as long as the counter is enabled.
 
 
-In both modes the end of timer count is signalled by setting a bit in the timer's local interrupt register.
+In both modes the end of timer count is signalled by setting a bit in the timer's local interrupt status register.
 
-- When timer interrupt is masked, the raw interrupt status can be read in `TIMERS_RAWISR`. The bits in this register correspond to Timer number, eg, 0 = TIMER0. So to check the raw interrupt status of TIMER2, check the bit 2 (`(0x1 << 2)` or `0x4`).
+- When timer interrupt is masked, the raw interrupt status can be read in `TIMERS_RAWISR`. The bits in this register correspond to Timer number, eg, 0 $\rightarrow$ `TIMER0`. So to check the raw interrupt status of `TIMER2`, check if bit 2 is set to 1.
 - When unmasked, this interrupt status can be read in `TIMERx->ISR` (x = 0,1,2) at the 0th bit of register. The bit is set to 1 when the interrupt occurs.
 
 #### Load Count
@@ -174,9 +174,9 @@ $10 \ ns \quad \rightarrow \quad 1 \ tick$
 
 So, $1 \ \mu s \enspace \rightarrow \ \frac{1 \mu s}{10 ns} \ \rightarrow \ \frac{10^{-6}}{10 * 10^{-9}} \quad ticks$
 
-$\therefore 1 \ \mu s \quad \rightarrow \ 100 \quad ticks $
+$\therefore 1 \ \mu s \quad \rightarrow \ 100 \quad ticks$
 
-So load a value of **100** for 1 $\mu s$ time period.
+So load a value of $100$ for  $1 \ \mu s$ time period.
 
 
 ---
